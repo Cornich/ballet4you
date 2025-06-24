@@ -113,6 +113,7 @@
                             $dates[$iso] = array("name"=>$dayName,"inactive"=>0);
                         }
                         foreach($jferies as $jferie){
+                            if(array_key_exists( $jferie["datum"],$dates))
                             $dates[$jferie["datum"]]["inactive"]=1;
                         }
                         return $dates;
@@ -141,6 +142,7 @@
                         <?php
                         function printDates($decalage,$date,$vacances,$feiertage):void {
                             $tagen=getDaysInMonth($date,$decalage,0,$vacances,$feiertage);
+                            print_r($tagen);
                             $NbFirstDay=getIdFromName(reset($tagen)["name"]);?>
                             <tr>
                                 <td>Die Anmeldung gilt ab dem Monat </td>
@@ -210,7 +212,7 @@
                         rempForm($name,$vorname,$yearMonth);
                         printDates($decalage,$date,$vacances,$feiertage);
                         
-                        print_r(getDaysInMonth($date, $decalage,1,$vacances,$feiertage));
+                        //print_r(getDaysInMonth($date, $decalage,1,$vacances,$feiertage));
 
                         ?>
 
