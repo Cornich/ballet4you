@@ -46,7 +46,7 @@
                     $decalage=0;
 
                     $date = new DateTime();
-                    $feiertage=[];
+                    //$feiertage=[];
                     // 1. Jours fériés via feiertage-api.de
                         //$feiertage_url = "https://feiertage-api.de/api/?jahr=$year&nur_land=$land_code";
                         //$feiertage_response = file_get_contents($feiertage_url);
@@ -76,7 +76,7 @@
                     //    }
                     //    echo($ferien_url);
 
-                    function getDaysInMonth($date, $decalage,$duree): array {//duree: variable qui dit si on demande un mois ou jusqu'à la fin de l'année
+                    function getDaysInMonth($date, $decalage,$duree,$vacances,$jferies): array {//duree: variable qui dit si on demande un mois ou jusqu'à la fin de l'année
                         $start=clone $date;
                         $start->modify("first day of this month");
                         for($i=0; $i<$decalage;$i++){
@@ -87,7 +87,7 @@
                         else{
                             $startMonth = $start->format("n"); // Récupère le mois actuel (1 pour janvier, 2 pour février, etc.)
                             $startYear = $start->format("Y"); // Récupère l'année actuelle
-                            echo('start: '.$startMonth."/".$startYear."(".$start->format('Y-M-d')."||".$decalage.")");
+                            //echo('start: '.$startMonth."/".$startYear."(".$start->format('Y-M-d')."||".$decalage.")");
                             if($startMonth<8){
                                 $end = (clone $start)->modify('first day of august'.$startYear)->modify('+1 day');
                             }
@@ -110,7 +110,10 @@
                         foreach ($period as $date) {
                             $iso = $date->format('Y-m-d');
                             $dayName = $fmt->format($date);
-                            $dates[$iso] = $dayName;
+                            $dates[$iso] = array("name"=>$dayName,"inactive"=>0);
+                        }
+                        foreach($jferies as $jferie){
+                            $dates[$jferie["datum"]]["inactive"]=1;
                         }
                         return $dates;
                     } 
@@ -136,9 +139,9 @@
 
 
                         <?php
-                        function printDates($decalage,$date):void {
-                            $tagen=getDaysInMonth($date,$decalage,0);
-                            $NbFirstDay=getIdFromName(reset($tagen));?>
+                        function printDates($decalage,$date,$vacances,$feiertage):void {
+                            $tagen=getDaysInMonth($date,$decalage,0,$vacances,$feiertage);
+                            $NbFirstDay=getIdFromName(reset($tagen)["name"]);?>
                             <tr>
                                 <td>Die Anmeldung gilt ab dem Monat </td>
                                 <td>
@@ -173,7 +176,7 @@
                             }
                             foreach ($tagen as $tag => $nom) {
                                 echo("<td>".substr($tag, -2) ."</td>");
-                                if(strcmp($nom,'Sonntag')==0){
+                                if(strcmp($nom["name"],'Sonntag')==0){
                                     echo("</tr><tr>");
                                 }
                             }
@@ -205,9 +208,9 @@
                         }
 
                         rempForm($name,$vorname,$yearMonth);
-                        printDates($decalage,$date);
+                        printDates($decalage,$date,$vacances,$feiertage);
                         
-                        print_r(getDaysInMonth($date, $decalage,1));
+                        print_r(getDaysInMonth($date, $decalage,1,$vacances,$feiertage));
 
                         ?>
 
