@@ -100,7 +100,7 @@
                         $fmt = datefmt_create(
                             'de-DE',
                             IntlDateFormatter::FULL,
-                            IntlDateFormatter::FULL,
+                            IntlDateFormatter::NONE,
                             'Europe/Berlin',
                             IntlDateFormatter::GREGORIAN,
                             'EEEE'
@@ -108,8 +108,11 @@
 
                         $dates = [];
                         foreach ($period as $date) {
+
+                            $date->setTime(0, 0, 0); // <-- ajoutez cette ligne
                             $iso = $date->format('Y-m-d');
                             $dayName = $fmt->format($date);
+                            //echo($iso." ".$dayName."</br>");
                             $dates[$iso] = array("name"=>$dayName,"inactive"=>0);
                         }
                         foreach($jferies as $jferie){
@@ -176,9 +179,13 @@
                             for ($i=0; $i <$NbFirstDay ; $i++) { 
                                 echo("<td></td>");
                             }
-                            foreach ($tagen as $tag => $nom) {
-                                echo("<td>".substr($tag, -2) ."</td>");
-                                if(strcmp($nom["name"],'Sonntag')==0){
+                            foreach ($tagen as $tag => $tinfo) {
+                                echo("<td>");
+                                if($tinfo["inactive"]==1) echo("<strong>");
+                                echo(substr($tag, -2));
+                                if($tinfo["inactive"]==1) echo("</strong>");
+                                echo("</td>");
+                                if(strcmp($tinfo["name"],'Sonntag')==0){
                                     echo("</tr><tr>");
                                 }
                             }
