@@ -42,6 +42,7 @@
                     $land_code = 'NW'; // Nordrhein-Westfalen
                     $year = date('Y');
                     $month=date('M');
+                    $yearMonth=date('Y-M');
                     $decalage=0;
 
                     $date = new DateTime();
@@ -65,8 +66,8 @@
                     //echo "</br> </br> </br>";
 
                     // 2. Vacances scolaires via ferien-api.de
-                    $ferien_url = "https://ferien-api.de/api/v1/holidays/$land_code/$year";
-                    $ferien_response = file_get_contents($ferien_url);
+                    //$ferien_url = "https://ferien-api.de/api/v1/holidays/$land_code/$year";
+                    //$ferien_response = file_get_contents($ferien_url);
                     //$vacances = json_decode($ferien_response, true);
 
                     //echo "🏫 Vacances scolaires à Bonn ($year):</br>";
@@ -105,54 +106,40 @@
                     //print_r(getDaysInMonth(2025,06));
                     //$tagen=getDaysInMonth($date,$decalage);
                     //$NbFirstDay=getIdFromName(reset($tagen));
-                    //echo("oui");
                     //print_r($vacances); 
                 ?>
                 <tr>
-                    <?php function rempForm($name,$vorname){ ?>
+                    <?php function rempForm($name,$vorname,$yearMonth){ ?>
                     <td>Name</td>
                     <?php echo($name); ?>
-                    <td><input type="text" size="10" maxlength="150" name="name" value="<?php echo($name); ?>" />         </td>
+                    <td><input type="text" size="10" maxlength="150" name="name" value="<?php echo($name); ?>" required/></td>
                 </tr>
                 <tr>
                     <td>Vorname     </td>
-                    <td><input type="text" size="10" maxlength="150" name="vorname" value="<?php echo($vorname); ?>" />         </td>
+                    <td><input type="text" size="10" maxlength="150" name="vorname" value="<?php echo($vorname); ?>" required/></td>
                 </tr>
-                <tr>
-                    <td>Die Anmeldung gilt ab dem Monat </td>
-                    <td><input type="month" id="start" name="start" min="2018-03" value="2018-09" /></td>
-                    
-                </tr>
-                <tr>
                     <?php } ?>
 
-                    
+
                     <?php
                     function printDates($decalage,$date):void {
-
                         $tagen=getDaysInMonth($date,$decalage);
-                        $NbFirstDay=getIdFromName(reset($tagen));
-                        echo('
+                        $NbFirstDay=getIdFromName(reset($tagen));?>
+                        <tr>
+                            <td>Die Anmeldung gilt ab dem Monat </td>
+                            <td>
+                                <input type="submit" name ="-" value="←"></input>
+                                <input type="hidden" name="decalage" value="<?php echo($decalage)?>" ><?php //echo($decalage)?>                       
+                                <?php echo(substr(array_key_first($tagen), 0,7))?>
+                                <input type="submit" name ="+" value="→"></input>
+                            </td>
+                        </tr>
+                        <tr>
+                        <?php
+                        echo(' 
                             <td>Kalender</td>
                             <td>
                                 <table>
-                                    <tr>
-                                        <!--<form method="post"> -->
-                                        <td>
-                                            <input type="submit" name ="-" value="←"></input>
-                                        </td>
-                                        <td><input type="hidden" name="decalage" value="'.$decalage.'">'.$decalage.'</td>
-                                        <td></td>
-                                        
-                                        <td>
-                                            '.substr(array_key_first($tagen), 0,7).'
-                                        </td>
-                                        <td></td><td></td>
-                                        <td>
-                                            <input type="submit" name ="+" value="→"></input>
-                                        </td>
-                                        <!-- </form> -->
-                                    </tr>
                                     <tr>
                                         <td> Montag </td>
 
@@ -187,6 +174,9 @@
                             if(isset($_POST['vorname'])) {
                                 $vorname=$_POST['vorname'];
                             }
+                            if(isset($_POST["startMontag"])){
+                                $yearMonth=$_POST["startMontag"];
+                            }
 
                             if(isset($_POST['decalage'])) {
                                 $decalage= (int)$_POST['decalage'];
@@ -200,7 +190,7 @@
                             
                         }
 
-                        rempForm($name,$vorname);
+                        rempForm($name,$vorname,$yearMonth);
                         printDates($decalage,$date);
                         ?>
 
