@@ -13,8 +13,8 @@
         <table>
             <form method="post">
                 <?php                
-                    $name="sq";
-                    $vorname="ds";
+                    $name="";
+                    $vorname="";
                     $feiertage = array(
                         "Neujahrstag" => array( "datum" => "2025-01-01", "hinweis" => ""),
                         "Karfreitag" => array( "datum" => "2025-04-18", "hinweis" => ""), 
@@ -76,9 +76,24 @@
                     //    }
                     //    echo($ferien_url);
 
-                    function getDaysInMonth($start, $decalage): array {
-                        $start->modify("+{$decalage} month")->modify("first day of this month");
-                        $end = (clone $start)->modify('last day of this month')->modify('+1 day');
+                    function getDaysInMonth($date, $decalage,$duree): array {//duree: variable qui dit si on demande un mois ou jusqu'à la fin de l'année
+                        $start=clone $date;
+                        $start->modify("first day of this month");
+                        for($i=0; $i<$decalage;$i++){
+                            $start->modify("first day of next month");
+                           // echo("Décallage:".$start->format('Y-M-d')."</br>");
+                        }
+                        if($duree==0) $end = (clone $start)->modify('last day of this month')->modify('+1 day');
+                        else{
+                            $startMonth = $start->format("n"); // Récupère le mois actuel (1 pour janvier, 2 pour février, etc.)
+                            $startYear = $start->format("Y"); // Récupère l'année actuelle
+                            echo('start: '.$startMonth."/".$startYear."(".$start->format('Y-M-d')."||".$decalage.")");
+                            if($startMonth<8){
+                                $end = (clone $start)->modify('first day of august'.$startYear)->modify('+1 day');
+                            }
+                            else{$end = (clone $start)->modify('first day of august next year')->modify('+1 day');
+                            }
+                        }
     
                         $interval = new DateInterval('P1D');
                         $period = new DatePeriod($start, $interval, $end);
@@ -91,7 +106,7 @@
                             'EEEE'
                         );
 
-                            $dates = [];
+                        $dates = [];
                         foreach ($period as $date) {
                             $iso = $date->format('Y-m-d');
                             $dayName = $fmt->format($date);
@@ -109,9 +124,8 @@
                     //print_r($vacances); 
                 ?>
                 <tr>
-                    <?php function rempForm($name,$vorname,$yearMonth){ ?>
+                    <?php function rempForm($name,$vorname,$yearMonth):void{ ?>
                     <td>Name</td>
-                    <?php echo($name); ?>
                     <td><input type="text" size="10" maxlength="150" name="name" value="<?php echo($name); ?>" required/></td>
                 </tr>
                 <tr>
@@ -121,51 +135,51 @@
                     <?php } ?>
 
 
-                    <?php
-                    function printDates($decalage,$date):void {
-                        $tagen=getDaysInMonth($date,$decalage);
-                        $NbFirstDay=getIdFromName(reset($tagen));?>
-                        <tr>
-                            <td>Die Anmeldung gilt ab dem Monat </td>
-                            <td>
-                                <input type="submit" name ="-" value="←"></input>
-                                <input type="hidden" name="decalage" value="<?php echo($decalage)?>" ><?php //echo($decalage)?>                       
-                                <?php echo(substr(array_key_first($tagen), 0,7))?>
-                                <input type="submit" name ="+" value="→"></input>
-                            </td>
-                        </tr>
-                        <tr>
                         <?php
-                        echo(' 
-                            <td>Kalender</td>
-                            <td>
-                                <table>
-                                    <tr>
-                                        <td> Montag </td>
+                        function printDates($decalage,$date):void {
+                            $tagen=getDaysInMonth($date,$decalage,0);
+                            $NbFirstDay=getIdFromName(reset($tagen));?>
+                            <tr>
+                                <td>Die Anmeldung gilt ab dem Monat </td>
+                                <td>
+                                    <input type="submit" name ="-" value="←"></input>
+                                    <input type="hidden" name="decalage" value="<?php echo($decalage)?>" ><?php //echo($decalage)?>                       
+                                    <?php echo(substr(array_key_first($tagen), 0,7))?>
+                                    <input type="submit" name ="+" value="→"></input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Kalender</td>
+                                <td>
+                                    <table>
+                                        <tr>
+                                            <td> Montag </td>
 
-                                        <td> Dienstag </td>
+                                            <td> Dienstag </td>
 
-                                        <td> Mittwoch </td>
+                                            <td> Mittwoch </td>
 
-                                        <td> Donnerstag </td>
+                                            <td> Donnerstag </td>
 
-                                        <td> Freitag </td>
+                                            <td> Freitag </td>
 
-                                        <td> Samstag </td>
+                                            <td> Samstag </td>
 
-                                        <td> Sonntag </td>
-                                    </tr>');
-                        for ($i=0; $i <$NbFirstDay ; $i++) { 
-                            echo("<td></td>");
-                        }
-                        foreach ($tagen as $tag => $nom) {
-                            echo("<td>".substr($tag, -2) ."</td>");
-                            if(strcmp($nom,'Sonntag')==0){
-                                echo("</tr><tr>");
+                                            <td> Sonntag </td>
+                                        </tr>
+                            <?php
+                            for ($i=0; $i <$NbFirstDay ; $i++) { 
+                                echo("<td></td>");
                             }
-                        }
-                        echo("</td>");
-                    }
+                            foreach ($tagen as $tag => $nom) {
+                                echo("<td>".substr($tag, -2) ."</td>");
+                                if(strcmp($nom,'Sonntag')==0){
+                                    echo("</tr><tr>");
+                                }
+                            }
+                            echo("</td>");
+                        }                        
+
 
                         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             if(isset($_POST['name'])) {
@@ -182,16 +196,19 @@
                                 $decalage= (int)$_POST['decalage'];
                             }                    
                             if(isset($_POST["-"])){
-                                $decalage -=1;
+                                if($decalage>0) $decalage -=1;
                             }
                             if(isset($_POST["+"])){            
-                                $decalage +=1;
+                                if($decalage<13) $decalage +=1;
                             }
                             
                         }
 
                         rempForm($name,$vorname,$yearMonth);
                         printDates($decalage,$date);
+                        
+                        print_r(getDaysInMonth($date, $decalage,1));
+
                         ?>
 
 
