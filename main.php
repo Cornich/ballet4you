@@ -46,21 +46,23 @@
                     $decalage=0;
 
                     $date = new DateTime();
-                    //$feiertage=[];
+                    $feiertage=[];
                     // 1. Jours fériés via feiertage-api.de
                         //$feiertage_url = "https://feiertage-api.de/api/?jahr=$year&nur_land=$land_code";
                         //$feiertage_response = file_get_contents($feiertage_url);
                         //$feiertage = json_decode($feiertage_response, true);
-                    $fTagen =[];
-                    //for ($i = $year-1; $i <= $year+2; $i++) {
-                    //    $feiertage_url = "https://feiertage-api.de/api/?jahr=$i&nur_land=$land_code";
-                    //    $feiertage_response = file_get_contents($feiertage_url);
-                    //    foreach(json_decode($feiertage_response, true) as $nom=>$info){
-                    //        $feiertage[]=$info['datum'];    
-                    //    }
-                    //    
-                    //}
-                    //print_r($feiertage);
+                    for ($i = $year; $i <= $year+2; $i++) {
+                        $feiertage_url = "https://feiertage-api.de/api/?jahr=$i&nur_land=$land_code";
+                        $feiertage_response = file_get_contents($feiertage_url);
+                        foreach(json_decode($feiertage_response, true) as $nom=>$info){
+                            $feiertage[]=$info['datum'];    
+                        }
+                        //echo("$i");
+                        //$feiertage=array_merge($feiertage,json_decode($feiertage_response, true))  ;
+                    }
+                    echo($decalage."feiertage:");
+                    print_r($feiertage);
+                    echo("</br>");
 
 
                     //echo "</br> </br> </br>";
@@ -119,6 +121,37 @@
                             if(array_key_exists( $jferie["datum"],$dates))
                             $dates[$jferie["datum"]]["inactive"]=1;
                         }
+                                                
+                        $pasdeb=1;
+                        foreach($vacances as $vacance){
+                            if(strcmp($vacance["start"],$vacance["end"])==0 and array_key_exists( $vacance["end"],$dates) ){
+                                $dates[$vacance["end"]]["inactive"]=1;
+                                echo("monovac: ".$vacance["start"]." ".$vacance["end"]);
+                            }
+                            else{
+                                if(array_key_exists( $vacance["start"],$dates)) {
+                                    $dates[ $vacance["start"]   ]["inactive"]=2;
+                                    echo("Start: ". $vacance["start"]);
+                                    if($pasdeb==1){ $pasdeb=0;}
+                                }
+                                if(array_key_exists( $vacance["end"],$dates)) {
+                                    $dates[ $vacance["end"] ]["inactive"]=4;
+                                    echo("end: ". $vacance["end"]);
+                                    if($pasdeb==1) {$pasdeb=2;}
+                                }
+                            }
+                        }
+
+                        if($pasdeb==2)$estEnVac=1;
+                        else $estEnVac=0;
+
+                        foreach($dates as $key => $date ){
+                            if($date["inactive"]==4)$estEnVac=0;
+                            elseif($date["inactive"]==2) $estEnVac=1;
+                            elseif($estEnVac==1) {$dates[$key]["inactive"]=3;}
+                        }
+
+                        
                         return $dates;
                     } 
                     function getIdFromName($day): int{
@@ -182,8 +215,10 @@
                             foreach ($tagen as $tag => $tinfo) {
                                 echo("<td>");
                                 if($tinfo["inactive"]==1) echo("<strong>");
+                                elseif($tinfo["inactive"]>1) echo("<u>");
                                 echo(substr($tag, -2));
                                 if($tinfo["inactive"]==1) echo("</strong>");
+                                elseif($tinfo["inactive"]>1) echo("</u>");
                                 echo("</td>");
                                 if(strcmp($tinfo["name"],'Sonntag')==0){
                                     echo("</tr><tr>");
