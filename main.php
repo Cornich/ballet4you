@@ -15,19 +15,42 @@
                 <?php                
                     $name="";
                     $vorname="";
-                    $feiertage = array(
-                        "Neujahrstag" => array( "datum" => "2025-01-01", "hinweis" => ""),
-                        "Karfreitag" => array( "datum" => "2025-04-18", "hinweis" => ""), 
-                        "Ostermontag" => array( "datum" => "2025-04-21", "hinweis" =>""), 
-                        "Tag der Arbeit" => array( "datum" => "2025-05-01", "hinweis" =>""), 
-                        "Christi Himmelfahrt" => array( "datum" => "2025-05-29","hinweis" =>""),
-                        "Pfingstmontag" => array( "datum" => "2025-06-09", "hinweis"=> ""),
-                        "Fronleichnam" => array( "datum" => "2025-06-19", "hinweis" =>""), 
-                        "Tag der Deutschen Einheit" => array( "datum" => "2025-10-03", "hinweis" =>""),
-                        "Allerheiligen" => array( "datum" => "2025-11-01", "hinweis" =>""),
-                        "1. Weihnachtstag" => array( "datum" => "2025-12-25", "hinweis" =>""), 
-                        "2. Weihnachtstag" => array( "datum" => "2025-12-26", "hinweis" =>"")
-                    );
+                    $feiertage =array ( 
+                        "0" => "2025-01-01" ,
+                        "1" => "2025-04-18" ,
+                        "2" => "2025-04-21" ,
+                        "3" => "2025-05-01" ,
+                        "4" => "2025-05-29" ,
+                        "5" => "2025-06-09" ,
+                        "6" => "2025-06-19" ,
+                        "7" => "2025-10-03" ,
+                        "8" => "2025-11-01" ,
+                        "9" => "2025-12-25" ,
+                        "10" => "2025-12-26", 
+                        "11" => "2026-01-01", 
+                        "12" => "2026-04-03", 
+                        "13" => "2026-04-06", 
+                        "14" => "2026-05-01", 
+                        "15" => "2026-05-14", 
+                        "16" => "2026-05-25", 
+                        "17" => "2026-06-04", 
+                        "18" => "2026-10-03", 
+                        "19" => "2026-11-01", 
+                        "20" => "2026-12-25", 
+                        "21" => "2026-12-26", 
+                        "22" => "2027-01-01", 
+                        "23" => "2027-03-26", 
+                        "24" => "2027-03-29", 
+                        "25" => "2027-05-01", 
+                        "26" => "2027-05-06", 
+                        "27" => "2027-05-17", 
+                        "28" => "2027-05-27", 
+                        "29" => "2027-10-03", 
+                        "30" => "2027-11-01", 
+                        "31" => "2027-12-25", 
+                        "32" => "2027-12-26" ) ;
+
+
 
                     $vacances=array ( 
                         "0" => array ( "start" => "2025-04-14", "end" => "2025-04-26" ,"year" => "2025", "stateCode" => "NW", "name" => "osterferien nordrhein-westfalen 2025", "slug" => "osterferien nordrhein-westfalen 2025-2025-NW" ) ,
@@ -46,11 +69,17 @@
                     $decalage=0;
 
                     $date = new DateTime();
-                    $feiertage=[];
+                    
                     // 1. Jours fériés via feiertage-api.de
                         //$feiertage_url = "https://feiertage-api.de/api/?jahr=$year&nur_land=$land_code";
                         //$feiertage_response = file_get_contents($feiertage_url);
                         //$feiertage = json_decode($feiertage_response, true);
+
+                    ########################################################
+                    #####Decommanter pour appel dynamique à l'api###########
+                    ########################################################
+                    /*
+                    $feiertage=[];
                     for ($i = $year; $i <= $year+2; $i++) {
                         $feiertage_url = "https://feiertage-api.de/api/?jahr=$i&nur_land=$land_code";
                         $feiertage_response = file_get_contents($feiertage_url);
@@ -59,7 +88,7 @@
                         }
                         //echo("$i");
                         //$feiertage=array_merge($feiertage,json_decode($feiertage_response, true))  ;
-                    }
+                    }*/
                     echo($decalage."feiertage:");
                     print_r($feiertage);
                     echo("</br>");
@@ -118,8 +147,8 @@
                             $dates[$iso] = array("name"=>$dayName,"inactive"=>0);
                         }
                         foreach($jferies as $jferie){
-                            if(array_key_exists( $jferie["datum"],$dates))
-                            $dates[$jferie["datum"]]["inactive"]=1;
+                            if(array_key_exists( $jferie,$dates))
+                            $dates[$jferie]["inactive"]=1;
                         }
                                                 
                         $pasdeb=1;
