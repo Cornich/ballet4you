@@ -12,7 +12,16 @@
         </h1>
         <table>
             <form method="post">
-                <?php                
+                <?php
+                    #Si on ne teste pas directement l'api, préférer les dates en statique pour éviter de trop la harceler
+                    $cours=array(
+                                "0"=>array("day"=>"1", "price"=>"10","name"=>"Cours du lundi"),
+                                "1"=>array("day"=>"2", "price"=>"51","name"=>"Cours du mardi"),
+                                "2"=>array("day"=>"2", "price"=>"12","name"=>"autre cours du mardi"),
+                                "3"=>array("day"=>"3", "price"=>"80","name"=>"Cours du mercredi"),
+                                "4"=>array("day"=>"4", "price"=>"55","name"=>"jeudi-ballet"));
+                
+                    
                     $name="";
                     $vorname="";
                     $feiertage =array ( 
@@ -60,8 +69,11 @@
                         "4" => array ( "start" => "2025-12-22", "end" => "2026-01-06" ,"year" => "2025", "stateCode" => "NW", "name" => "weihnachtsferien nordrhein-westfalen 2025", "slug" => "weihnachtsferien nordrhein-westfalen 2025-2025-NW" ) 
                     ) ;
 
+
+
                         //print_r($feiertage);
                     //print_r($vacances);
+                    #INFOS POUR DIRE À L'API QUOI RÉCUPÉRER
                     $land_code = 'NW'; // Nordrhein-Westfalen
                     $year = date('Y');
                     $month=date('M');
@@ -93,7 +105,9 @@
                     print_r($feiertage);
                     echo("</br>");
 
-
+                    #############################################
+                    #Normalement c'est pareil avec les vacances##
+                    #############################################
                     //echo "</br> </br> </br>";
 
                     // 2. Vacances scolaires via ferien-api.de
@@ -107,7 +121,8 @@
                     //    }
                     //    echo($ferien_url);
 
-                    function getDaysInMonth($date, $decalage,$duree,$vacances,$jferies): array {//duree: variable qui dit si on demande un mois ou jusqu'à la fin de l'année
+                    #fonction utilisée aussi bien pour afficher le calendrier (un mois) que pour avoir tous les jours de l'année (utile pour calculer combien de jeudis on aura→nb cours→prix)
+                    function getDaysInMonth($date, $decalage,$duree,$vacances,$jferies): array {//duree: variable qui dit si on demande un mois ou jusqu'à la fin de l'année (fin juillet)
                         $start=clone $date;
                         $start->modify("first day of this month");
                         for($i=0; $i<$decalage;$i++){
@@ -122,12 +137,13 @@
                             if($startMonth<8){
                                 $end = (clone $start)->modify('first day of august'.$startYear)->modify('+1 day');
                             }
-                            else{$end = (clone $start)->modify('first day of august next year')->modify('+1 day');
+                            else{
+                                $end = (clone $start)->modify('first day of august next year')->modify('+1 day');
                             }
                         }
     
                         $interval = new DateInterval('P1D');
-                        $period = new DatePeriod($start, $interval, $end);
+                        $period = new DatePeriod($start, $interval, $end);//liste de tous les jours entre le début et la fin
                         $fmt = datefmt_create(
                             'de-DE',
                             IntlDateFormatter::FULL,
@@ -138,21 +154,26 @@
                         );
 
                         $dates = [];
-                        foreach ($period as $date) {
+                        foreach ($period as $date) {//enregistrement de ces jours ainsi que leur nom(lundi mardi etc)
 
-                            $date->setTime(0, 0, 0); // <-- ajoutez cette ligne
+                            $date->setTime(0, 0, 0);
                             $iso = $date->format('Y-m-d');
                             $dayName = $fmt->format($date);
                             //echo($iso." ".$dayName."</br>");
                             $dates[$iso] = array("name"=>$dayName,"inactive"=>0);
                         }
-                        foreach($jferies as $jferie){
+
+                        ##########################
+                        #########INFO#############
+                        /#Innactive: {0: jour travaillé, 1: jour férié, 2: début des vacances, 3: jour de vacances lambda, 4: Fin de vacances}
+                        ###########################
+                        foreach($jferies as $jferie){//appplication des jours fériés
                             if(array_key_exists( $jferie,$dates))
                             $dates[$jferie]["inactive"]=1;
                         }
                                                 
                         $pasdeb=1;
-                        foreach($vacances as $vacance){
+                        foreach($vacances as $vacance){//application des vacances
                             if(strcmp($vacance["start"],$vacance["end"])==0 and array_key_exists( $vacance["end"],$dates) ){
                                 $dates[$vacance["end"]]["inactive"]=1;
                                 echo("monovac: ".$vacance["start"]." ".$vacance["end"]);
@@ -241,7 +262,7 @@
                             for ($i=0; $i <$NbFirstDay ; $i++) { 
                                 echo("<td></td>");
                             }
-                            foreach ($tagen as $tag => $tinfo) {
+                            foreach ($tagen as $tag => $tinfo) {//impression des jours avec un formatage particulier selon si les jours sont travailéls, fériés ou vacanciers
                                 echo("<td>");
                                 if($tinfo["inactive"]==1) echo("<strong>");
                                 elseif($tinfo["inactive"]>1) echo("<u>");
@@ -257,7 +278,7 @@
                         }                        
 
 
-                        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                        if ($_SERVER['REQUEST_METHOD'] == 'POST') {//obtention des données pour pouvoir les garder entre chaque chargement de page (qui a lieu à chaque fois qu'on met à jour le calendrier via les flèches)
                             if(isset($_POST['name'])) {
                                 $name=$_POST['name'];
                             }                               
@@ -279,9 +300,9 @@
                             }
                             
                         }
-
-                        rempForm($name,$vorname,$yearMonth);
-                        printDates($decalage,$date,$vacances,$feiertage);
+                        //appel des fonction pour les rééxécuter à chaque chargement 
+                        rempForm($name,$vorname,$yearMonth); // pour garder ce que l'utilisateur a dit
+                        printDates($decalage,$date,$vacances,$feiertage); // pour mettre à jour le calendrier
                         
                         //print_r(getDaysInMonth($date, $decalage,1,$vacances,$feiertage));
 
