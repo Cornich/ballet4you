@@ -165,7 +165,7 @@
 
                         ##########################
                         #########INFO#############
-                        /#Innactive: {0: jour travaillé, 1: jour férié, 2: début des vacances, 3: jour de vacances lambda, 4: Fin de vacances}
+                        ##Innactive: {0: jour travaillé, 1: jour férié, 2: début des vacances, 3: jour de vacances lambda, 4: Fin de vacances}
                         ###########################
                         foreach($jferies as $jferie){//appplication des jours fériés
                             if(array_key_exists( $jferie,$dates))
