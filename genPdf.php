@@ -21,6 +21,46 @@ $mpdf = new Mpdf();
 // HTML avec styles CSS inline
 $html = "
 
+<style>
+  .bloc-titre {
+    border: 6px solid #e3a0cf;
+    padding: 10px;
+  }
+
+  table.titre-layout {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .titre-layout td {
+    vertical-align: middle;
+  }
+
+  .logo {
+    max-width: 80px;
+  }
+
+  .titre {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+
+  .sous-titre {
+    font-size: 16px;
+  }
+
+  .bloc-footer {
+    border: 3px solid #e3a0cf;
+  }
+
+  .bloc-text { margin-top: 20px; margin-left : 40px; margin-right: 40px;}
+
+  h1 { font-size: 16; text-decoration: underline; }
+  body { font-family: Arial, sans-serif; }
+  p { font-size: 14px; }
+</style>
+
 <div class='bloc-titre'>
   <table class='titre-layout'>
     <tr>
