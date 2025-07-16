@@ -1,0 +1,38 @@
+finir de bien mettre les champs, ajouter la liste deroulante de choix de cours
+Remplacer les données statiques de la factur par les champs saisis
+formatter les champs de saisie pour qu'ils correspondent au type de donnée
+stocker pdf dans la bdd 
+_____
+Lancer le projet : Lancer wampserver64 et aller sur http://localhost/ballet4you/index.php
+_____
+Questions
+______
+
+Copie de facture envoyée automatiquement à Maud par mail ?
+
+Ce champ, l'utilisateur saisi ou il est imposé ? Die Anmeldung gilt ab dem Monat: ………………………………………………………
+
+estcequil faut generer lentiereté de la facture quelle nos a fournie en piece jointe ou la premiere page suffit ?
+
+
+            --- facultatif ---
+Faut il lui faire une page pour ajouter ses cours ? oui page admin avec identifiants 
+Il faut quelle puisse ajoute/supprimer cours , dates de vacances
+
+
+200 par pers 
+
+tas une interface où tu te connectes avec un mdp et où tu peux modifier ls cours et les vacancees
+estceque sur cette interface tu veux voir les factures generees ou alors elles te sont envoyés par mail 
+
+JAZZ für KIDS
+HIP-HOP
+LEISTUNG Minis
+PRE-BALLETT 2
+PRE-BALLETT 1
+KIDS 1. & 2. STUFE
+TEENS 2
+ERWACHSENE
+LEISTUNG Junior
+LEISTUNG Pre-Pros
+TEENS 1 open level
