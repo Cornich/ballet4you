@@ -22,7 +22,8 @@ $sqlTables = "
 CREATE TABLE IF NOT EXISTS cours (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
-    price DECIMAL(10,2) NOT NULL
+    priceMonth DECIMAL(10,2) NOT NULL,
+    priceUnite DECIMAL(10,2) NOT NULL
 );
 CREATE TABLE IF NOT EXISTS planning (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -31,6 +32,7 @@ CREATE TABLE IF NOT EXISTS planning (
     debut TIME NOT NULL,
     fin TIME NOT NULL,
     prof VARCHAR(20) NOT NULL,
+    adresse varchar(40) not null,
     FOREIGN KEY (cours_id) REFERENCES cours(id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS init_flag (
@@ -49,26 +51,36 @@ if ($conn->multi_query($sqlTables)) {
     die("Erreur création tables : " . $conn->error);
 }
 
+function getCoursNameById($conn, $cours_id) {
+    $stmt = $conn->prepare("SELECT name FROM cours WHERE id = ?");
+    $stmt->bind_param("i", $cours_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_assoc()['name'] ?? '';
+}
+
+
 // Fonction pour insérer les cours statiques
 function initCours($conn) {
     $coursList = [
-        ['JAZZ für KIDS', 75.00],
-        ['HIP-HOP', 75.00],
-        ['LEISTUNG Minis', 90.00],
-        ['PRE-BALLETT 2', 70.00],
-        ['PRE-BALLETT 1', 70.00],
-        ['KIDS 1. & 2. STUFE', 75.00],
-        ['TEENS 2', 80.00],
-        ['ERWACHSENE', 80.00],
-        ['LEISTUNG Junior', 90.00],
-        ['LEISTUNG Pre-Pros', 100.00],
-        ['TEENS 1 open level', 80.00],
+        ['JAZZ für KIDS', 30.00, 10.00],
+        ['HIP-HOP', 59.00, 15.00],
+        ['LEISTUNG Minis', 90.00, 15.00],
+        ['PRE-BALLETT 2', 46.00, 12.00],
+        ['PRE-BALLETT 1', 46.00, 12.00],
+        ['KIDS 1. & 2. STUFE', 56.00, 15.00],
+        ['TEENS 2', 57.00, 15.00],
+        ['ERWACHSENE', 59.00, 15.00],
+        ['LEISTUNG Junior', 50.00, 15.00],
+        ['LEISTUNG Pre-Pros', 70.00, 15.00],
+        ['TEENS 1 open level', 57.00, 15.00],
     ];
 
     foreach ($coursList as $cours) {
         $name = $conn->real_escape_string($cours[0]);
-        $price = $cours[1];
-        if (!$conn->query("INSERT IGNORE INTO cours (name, price) VALUES ('$name', $price)")) {
+        $priceM = $cours[1];
+        $priceU = $cours[2];
+        if (!$conn->query("INSERT IGNORE INTO cours (name, priceMonth, priceUnite) VALUES ('$name', $priceM, $priceU)")) {
             die("Erreur insertion cours '$name' : " . $conn->error);
         }
     }
@@ -88,30 +100,30 @@ function getCoursId($conn, $name) {
 // Fonction pour insérer le planning de façon statique
 function initPlanning($conn) {
     $plannings = [
-        ['JAZZ für KIDS', 'Montag', '17:00:00', '18:00:00', 'MARGARET'],
-        ['HIP-HOP', 'Montag', '18:00:00', '19:30:00', 'MARGARET'],
-        ['LEISTUNG Minis', 'Dienstag', '15:00:00', '16:00:00', 'MAUD'],
-        ['PRE-BALLETT 2', 'Dienstag', '16:15:00', '17:00:00', 'NICOLE'],
-        ['PRE-BALLETT 1', 'Dienstag', '16:00:00', '16:45:00', 'LISA'],
-        ['KIDS 1. & 2. STUFE', 'Dienstag', '17:15:00', '18:15:00', 'LISA'],
-        ['TEENS 2', 'Dienstag', '18:25:00', '19:40:00', 'MAUD/LISA'],
-        ['ERWACHSENE', 'Dienstag', '19:45:00', '21:00:00', 'LISA'],
-        ['LEISTUNG Junior', 'Mittwoch', '17:00:00', '18:00:00', 'MAUD'],
-        ['LEISTUNG Pre-Pros', 'Mittwoch', '17:00:00', '19:00:00', 'MAUD'],
-        ['KIDS 1. & 2. STUFE', 'Donnerstag', '14:40:00', '15:40:00', 'MAUD'],
-        ['PRE-BALLETT 1', 'Donnerstag', '15:50:00', '16:35:00', 'MAUD'],
-        ['KIDS 1. & 2. STUFE', 'Donnerstag', '16:45:00', '17:45:00', 'MAUD'],
-        ['TEENS 1 open level', 'Donnerstag', '18:00:00', '19:15:00', 'CLAUDIO'],
-        ['ERWACHSENE', 'Donnerstag', '19:30:00', '21:00:00', 'CLAUDIO'],
-        ['LEISTUNG Minis', 'Freitag', '14:30:00', '15:30:00', 'MAUD'],
-        ['LEISTUNG Junior', 'Freitag', '15:45:00', '17:45:00', 'MAUD'],
-        ['LEISTUNG Pre-Pros', 'Freitag', '18:00:00', '19:30:00', 'MAUD'],
-        ['LEISTUNG Pre-Pros', 'Freitag', '19:30:00', '20:30:00', 'MAUD'],
-        ['PRE-BALLETT 1', 'Samstag', '09:45:00', '10:30:00', 'MAUD'],
-        ['PRE-BALLETT 2', 'Samstag', '10:45:00', '11:30:00', 'MAUD'],
-        ['LEISTUNG Junior', 'Samstag', '11:45:00', '13:15:00', 'MAUD'],
-        ['LEISTUNG Pre-Pros', 'Samstag', '14:30:00', '16:00:00', 'MAUD'],
-    ];
+    ['JAZZ für KIDS', 'Montag', '17:00:00', '18:00:00', 'MARGARET', 'Windhagen'],
+    ['HIP-HOP', 'Montag', '18:00:00', '19:30:00', 'MARGARET', 'Windhagen'],
+    ['LEISTUNG Minis', 'Dienstag', '15:00:00', '16:00:00', 'MAUD', 'Ruppichteroth'],
+    ['PRE-BALLETT 2', 'Dienstag', '16:15:00', '17:00:00', 'NICOLE', 'Ruppichteroth'],
+    ['PRE-BALLETT 1', 'Dienstag', '16:00:00', '16:45:00', 'LISA', 'Ruppichteroth'],
+    ['KIDS 1. & 2. STUFE', 'Dienstag', '17:15:00', '18:15:00', 'LISA', 'Ruppichteroth'],
+    ['TEENS 2', 'Dienstag', '18:25:00', '19:40:00', 'MAUD/LISA', 'Ruppichteroth'],
+    ['ERWACHSENE', 'Dienstag', '19:45:00', '21:00:00', 'LISA', 'Ruppichteroth'],
+    ['LEISTUNG Junior', 'Mittwoch', '17:00:00', '18:00:00', 'MAUD', 'Ruppichteroth'],
+    ['LEISTUNG Pre-Pros', 'Mittwoch', '17:00:00', '19:00:00', 'MAUD', 'Ruppichteroth'],
+    ['KIDS 1. & 2. STUFE', 'Donnerstag', '14:40:00', '15:40:00', 'MAUD', 'Ruppichteroth'],
+    ['PRE-BALLETT 1', 'Donnerstag', '15:50:00', '16:35:00', 'MAUD', 'Ruppichteroth'],
+    ['KIDS 1. & 2. STUFE', 'Donnerstag', '16:45:00', '17:45:00', 'MAUD', 'Ruppichteroth'],
+    ['TEENS 1 open level', 'Donnerstag', '18:00:00', '19:15:00', 'CLAUDIO', 'Ruppichteroth'],
+    ['ERWACHSENE', 'Donnerstag', '19:30:00', '21:00:00', 'CLAUDIO', 'Ruppichteroth'],
+    ['LEISTUNG Minis', 'Freitag', '14:30:00', '15:30:00', 'MAUD', 'Ruppichteroth'],
+    ['LEISTUNG Junior', 'Freitag', '15:45:00', '17:45:00', 'MAUD', 'Ruppichteroth'],
+    ['LEISTUNG Pre-Pros', 'Freitag', '18:00:00', '19:30:00', 'MAUD', 'Ruppichteroth'],
+    ['LEISTUNG Pre-Pros', 'Freitag', '19:30:00', '20:30:00', 'MAUD', 'Ruppichteroth'],
+    ['PRE-BALLETT 1', 'Samstag', '09:45:00', '10:30:00', 'MAUD', 'Ruppichteroth'],
+    ['PRE-BALLETT 2', 'Samstag', '10:45:00', '11:30:00', 'MAUD', 'Ruppichteroth'],
+    ['LEISTUNG Junior', 'Samstag', '11:45:00', '13:15:00', 'MAUD', 'Ruppichteroth'],
+    ['LEISTUNG Pre-Pros', 'Samstag', '14:30:00', '16:00:00', 'MAUD', 'Ruppichteroth'],
+];
 
     foreach ($plannings as $p) {
         $coursId = getCoursId($conn, $p[0]);
@@ -121,6 +133,7 @@ function initPlanning($conn) {
         $debut = $p[2];
         $fin = $p[3];
         $prof = $conn->real_escape_string($p[4]);
+        $adresse = $conn->real_escape_string($p[5]);
 
         // Vérifie si ce créneau existe déjà
         $check = $conn->query("SELECT * FROM planning 
@@ -129,8 +142,8 @@ function initPlanning($conn) {
             die("Erreur vérification planning : " . $conn->error);
         }
         if ($check->num_rows === 0) {
-            if (!$conn->query("INSERT INTO planning (cours_id, jour, debut, fin, prof)
-                          VALUES ($coursId, '$jour', '$debut', '$fin', '$prof')")) {
+            if (!$conn->query("INSERT INTO planning (cours_id, jour, debut, fin, prof, adresse)
+                          VALUES ($coursId, '$jour', '$debut', '$fin', '$prof', '$adresse')")) {
                 die("Erreur insertion planning : " . $conn->error);
             }
         }
@@ -139,7 +152,7 @@ function initPlanning($conn) {
 
 // Fonction pour récupérer tous les cours
 function getAllCours($conn) {
-    $sql = "SELECT id, name, price FROM cours ORDER BY name";
+    $sql = "SELECT id, name FROM cours ORDER BY name";
     $result = $conn->query($sql);
     if (!$result) {
         die("Erreur SQL getAllCours : " . $conn->error);
@@ -211,4 +224,99 @@ function getCoursDatesInMonth($conn, $cours_id, DateTime $monthDate) {
 
     return $result;
 }
+
+function getMonthPriceById($conn, $cours_id) {
+    $priceMonth = 0;
+    // Préparer la requête SQL pour obtenir le prix unitaire du cours
+    $stmt = $conn->prepare("SELECT priceMonth FROM cours WHERE id = ?");
+    $stmt->bind_param("i", $cours_id);
+    $stmt->execute();
+    $stmt->bind_result($priceMonth);
+    $stmt->fetch();
+    $stmt->close();
+
+    if (!isset($priceMonth)) {
+        return 0; // Retourne 0 si le cours n'existe pas ou erreur
+    }
+
+    return round($priceMonth, 2); // Retourne un prix formaté à 2 décimales
+}
+
+
+function getPlanningByCoursId($conn, $cours_id) {
+    $stmt = $conn->prepare("
+        SELECT jour, debut, fin, prof, adresse 
+        FROM planning 
+        WHERE cours_id = ?
+    ");
+    if (!$stmt) {
+        die("Erreur préparation : " . $conn->error);
+    }
+
+    $stmt->bind_param("i", $cours_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $planning = [];
+    while ($row = $result->fetch_assoc()) {
+        $planning[$row['jour']][] = $row;
+    }
+    return $planning; // ex: ['Montag' => [...], 'Dienstag' => [...]]
+}
+
+
+
+function getPriceBySelectedSeances($conn, $selectedSeances) {
+    if (empty($selectedSeances)) return ['total' => 0, 'details' => []];
+    $priceUnite = 0;
+    $countByCours = [];        // [cours_id => count]
+    $datesByCours = [];        // [cours_id => [dates]]
+    $priceByCours = [];        // [cours_id => prix]
+
+    foreach ($selectedSeances as $entry) {
+        $parts = explode('|', $entry);
+        if (count($parts) !== 4) continue;
+
+        $coursId = intval($parts[0]);
+        $date = $parts[3];
+
+        // Compter les séances
+        if (!isset($countByCours[$coursId])) {
+            $countByCours[$coursId] = 0;
+            $datesByCours[$coursId] = [];
+        }
+
+        $countByCours[$coursId]++;
+        $datesByCours[$coursId][] = $date;
+    }
+
+    $details = [];
+    $total = 0;
+
+    foreach ($countByCours as $coursId => $nbSeances) {
+        // Récupérer le prix unitaire
+        $stmt = $conn->prepare("SELECT priceUnite FROM cours WHERE id = ?");
+        $stmt->bind_param("i", $coursId);
+        $stmt->execute();
+        $stmt->bind_result($priceUnite);
+        $stmt->fetch();
+        $stmt->close();
+
+        if (!isset($priceUnite)) continue;
+
+        $total += $nbSeances * $priceUnite;
+
+        // Format de la phrase
+        $datesList = implode(', ', $datesByCours[$coursId]);
+        $sentence = "$nbSeances unterricht @ {$priceUnite}€: am $datesList.";
+        $details[] = $sentence;
+    }
+
+    return [
+        'total' => round($total, 2),
+        'details' => $details
+    ];
+}
+
+
 ?>

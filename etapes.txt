@@ -1,7 +1,5 @@
-finir de bien mettre les champs, ajouter la liste deroulante de choix de cours
-Remplacer les données statiques de la factur par les champs saisis
-formatter les champs de saisie pour qu'ils correspondent au type de donnée
-stocker pdf dans la bdd 
+modifier la fct getPaiementDetailsForSelectedCours dans db 
+reussir a completer le pdf
 _____
 Lancer le projet : Lancer wampserver64 et aller sur http://localhost/ballet4you/index.php
 _____

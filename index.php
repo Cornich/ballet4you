@@ -3,6 +3,7 @@ include 'db.php';          // Connexion à la base de données
 include 'includes/header.php';  // Entête HTML
 
 session_start();
+
 require 'config.php';
 
 // Initialisation variables depuis session
@@ -12,13 +13,18 @@ $birthdate = $_SESSION['geburtsdatum'] ?? "";
 $tuteur = $_SESSION['erziehungsberechtigter'] ?? "";
 $email = $_SESSION['email'] ?? "";
 $adresse = $_SESSION['adresse'] ?? "";
-
+$moisAnnee = $_SESSION['moisAnnee'] ?? "";
 $decalage = $_SESSION['decalage'] ?? 0;
+
+$selected_seances = $_SESSION['selected_seances'] ?? [];
 
 $cours_id = $_POST['cours_id'] ?? $_SESSION['cours_id'] ?? "";
 $_SESSION['cours_id'] = $cours_id;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['selected_seances'])) {
+                $_SESSION['selected_seances'] = $_POST['selected_seances'];
+    }
     if (!isset($_POST['Senden'])) {
         if (isset($_POST['name'])) $name = $_POST['name'];
         if (isset($_POST['vorname'])) $vorname = $_POST['vorname'];
@@ -26,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['erziehungsberechtigter'])) $tuteur = $_POST['erziehungsberechtigter'];
         if (isset($_POST['email'])) $email = $_POST['email'];
         if (isset($_POST['adresse'])) $adresse = $_POST['adresse'];
-
+        if (isset($_POST['moisAnnee'])) $moisAnnee = $_POST['moisAnnee'];
 
         if (isset($_POST['decalage'])) $decalage = (int)$_POST['decalage'];
 
@@ -40,9 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['geburtsdatum'] = $birthdate;
         $_SESSION['erziehungsberechtigter'] = $tuteur;
         $_SESSION['email'] = $email;
-        $_SESSION['adresse'] = $adresse;
-
-        
+        $_SESSION['adresse'] = $adresse;        
+        $_SESSION['moisAnnee'] = $moisAnnee;        
 
         header('Location: '.$_SERVER['PHP_SELF']);
         exit();
@@ -55,6 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['erziehungsberechtigter'] = $tuteur;
         $_SESSION['email'] = $email;
         $_SESSION['adresse'] = $adresse;
+        $_SESSION['moisAnnee'] = $moisAnnee;        
+
     }
 }
 
@@ -63,12 +70,18 @@ $monthDate = (clone $date)->modify("+{$decalage} months");
 
 // Récupération des jours du mois
 $tagen = getDaysInMonth($date, $decalage, 0, $vacances, $feiertage);
+$firstMonth = substr(array_key_first($tagen), 0, 7);
+$_SESSION['firstMonth'] = $firstMonth;
 $NbFirstDay = getIdFromName(reset($tagen)["name"]);
 
 // Récupération des dates de cours pour le calendrier
 $coursDates = [];
 if (!empty($cours_id)) {
     $coursDates = getCoursDatesInMonth($conn, $cours_id, $monthDate);
+}
+$planningDetails = [];
+if (!empty($cours_id)) {
+    $planningDetails = getPlanningByCoursId($conn, $cours_id);
 }
 
 $coursList = getAllCours($conn);
@@ -166,15 +179,41 @@ $coursList = getAllCours($conn);
                                 $classes[] = "ferie";
                             }
 
-                            // Si date correspond à un jour de cours et n’est pas férié
-                            if (in_array($tag, $coursDates) && $tinfo["inactive"] == 0) {
+                            $jourName = $tinfo["name"]; // Ex: "Montag"
+                            $infos = $planningDetails[$jourName] ?? [];
+                            if (!empty($infos) && $tinfo["inactive"] == 0) {
                                 $classes[] = "cours";
                             }
 
                             echo '<td class="'.implode(' ', $classes).'">';
-                            if ($tinfo["inactive"] == 1) echo "<strong>$dayStr</strong>";
-                            elseif ($tinfo["inactive"] > 1) echo "<u>$dayStr</u>";
-                            else echo $dayStr;
+                            echo "<div style='font-size:12px; text-align: center'>";
+                            echo htmlspecialchars($dayStr) . '<br>';
+                            foreach ($infos as $index => $info) {
+                                if (!empty($infos) && $tinfo["inactive"] == 0) {
+                                    if($decalage === 0)
+                                    {
+                                        $jourDate = htmlspecialchars($tag); // ex: "2025-07-22"
+                                        $value = $cours_id . '|' . $jourDate . '|' . $info['debut'] . '|' . $info['fin'];
+                                        $dateObj = new DateTime($jourDate);
+                                        // Formatage du mois en toutes lettres + année
+                                        $moisAnnee = $dateObj->format('F Y'); // ex: "April 2025"
+                                        echo "<label style='font-size:11px; display:block;'>";
+                                        echo "<input type='checkbox' class='seance-checkbox' name='selected_seances[]' value='" . $value . "' " . (in_array($value, $selected_seances) ? 'checked' : '') . ">";
+
+                                        echo "<strong>" . htmlspecialchars($info['debut']) . " - " . htmlspecialchars($info['fin']) . "</strong>" . "<br>";
+                                        echo "<strong>" . htmlspecialchars($info['adresse']) . "</strong>" . "<br>";
+                                        echo "<strong>" . htmlspecialchars($info['prof']) . "</strong>" . "<br>";
+                                        echo "</label>";
+                                    }
+                                    else {
+                                        echo "<strong>" . htmlspecialchars($info['debut']) . " - " . htmlspecialchars($info['fin']) . "</strong>" . "<br>";
+                                        echo "<strong>" . htmlspecialchars($info['adresse']) . "</strong>" . "<br>";
+                                        echo "<strong>" . htmlspecialchars($info['prof']) . "</strong>" . "<br><br>";
+                                    }
+  
+                                }
+                            }
+                            echo "</div>";
                             echo '</td>';
                             
                             /*if ($tinfo["inactive"] == 1) echo "<strong>";
@@ -197,10 +236,51 @@ $coursList = getAllCours($conn);
             </td>
         </tr>
         <tr>
-            <td><input type="submit" name="Senden" value="Senden" formaction="genPdf.php"/></td>
+            <td><input type="hidden" name="senden_clicked" value="1"> 
+            <input type="hidden" name="moisAnnee" value="<?php echo htmlspecialchars($moisAnnee); ?>">
+            <input type="submit" name="Senden" value="Senden" formaction="genPdf.php"/></td>
         </tr>
     </form>
 </table>
+
+<h3>Séances sélectionnées :</h3>
+<ul id="selected-seances-list">
+<?php
+foreach ($_SESSION['selected_seances'] ?? [] as $seance) {
+    echo "<li>" . htmlspecialchars($seance) . "</li>";
+}
+?>
+</ul>
+
+
+
+<script>
+document.querySelectorAll(".seance-checkbox").forEach(checkbox => {
+  checkbox.addEventListener('change', function() {
+    const value = this.value;
+    const checked = this.checked;
+
+    fetch('update_seances.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: value, checked: checked })
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Mise à jour de la liste affichée
+      const list = document.getElementById('selected-seances-list');
+      list.innerHTML = '';
+      data.selected_seances.forEach(seance => {
+        const li = document.createElement('li');
+        li.textContent = seance;
+        list.appendChild(li);
+      });
+    })
+    .catch(err => console.error('Erreur AJAX:', err));
+  });
+});
+</script>
+
 
 </body>
 
