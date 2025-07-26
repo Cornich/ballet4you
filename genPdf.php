@@ -123,7 +123,7 @@ $html = "
 $mpdf->WriteHTML($html);
 
 // Sortie directe au navigateur (affiche le PDF)
-$mpdf->Output("facture.pdf", "I");
+$mpdf->Output("Rechnung $name $vorname.pdf", "I");
     unset($_SESSION['name']);
     unset($_SESSION['vorname']);
     unset($_SESSION['geburtsdatum']);

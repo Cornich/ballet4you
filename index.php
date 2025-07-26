@@ -243,17 +243,6 @@ $coursList = getAllCours($conn);
     </form>
 </table>
 
-<h3>Séances sélectionnées :</h3>
-<ul id="selected-seances-list">
-<?php
-foreach ($_SESSION['selected_seances'] ?? [] as $seance) {
-    echo "<li>" . htmlspecialchars($seance) . "</li>";
-}
-?>
-</ul>
-
-
-
 <script>
 document.querySelectorAll(".seance-checkbox").forEach(checkbox => {
   checkbox.addEventListener('change', function() {
