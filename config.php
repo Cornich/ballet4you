@@ -72,19 +72,27 @@ function getDaysInMonth($date, $decalage, $duree, $vacances, $jferies): array {
         }
     }
 
-    $estEnVac = 0;
-    foreach ($vacances as $vacance) {
-        if (strcmp($vacance["start"], $vacance["end"]) == 0 && array_key_exists($vacance["end"], $dates)) {
-            $dates[$vacance["end"]]["inactive"] = 1;
-        } else {
-            if (array_key_exists($vacance["start"], $dates)) {
-                $dates[$vacance["start"]]["inactive"] = 2;
+    $pasdeb=1;
+    foreach($vacances as $vacance){//application des vacances
+        if(strcmp($vacance["start"],$vacance["end"])==0 and array_key_exists( $vacance["end"],$dates) ){//début et fin sont le même jour    
+            $dates[$vacance["end"]]["inactive"]=1;
+            //echo("monovac: ".$vacance["start"]." ".$vacance["end"]);
+        }
+        else{
+            if(array_key_exists( $vacance["start"],$dates)) {
+                $dates[ $vacance["start"]   ]["inactive"]=2;
+                //echo("Start: ". $vacance["start"]);
+                if($pasdeb==1){ $pasdeb=0;}
             }
-            if (array_key_exists($vacance["end"], $dates)) {
-                $dates[$vacance["end"]]["inactive"] = 4;
+            if(array_key_exists( $vacance["end"],$dates)) {
+                $dates[ $vacance["end"] ]["inactive"]=4;
+                //echo("end: ". $vacance["end"]);
+                if($pasdeb==1) {$pasdeb=2;}
             }
         }
     }
+    if($pasdeb==2) $estEnVac=1;
+    else $estEnVac=0;
 
     foreach ($dates as $key => $date) {
         if ($date["inactive"] == 4) $estEnVac = 0;

@@ -165,6 +165,7 @@ $coursList = getAllCours($conn);
                     </tr>
                     <tr>
                         <?php
+                        print_r($tagen);
 
                         for ($i = 0; $i < $NbFirstDay; $i++) echo "<td></td>";
 
