@@ -130,7 +130,7 @@ $coursList = getAllCours($conn);
         </tr>
 
         <tr>
-    <td>Cours</td>
+    <td>Kurs</td>
     <td>
         <select name="cours_id" required onchange="this.form.submit()">
             <option value="">-- Choisir un cours --</option>
@@ -144,7 +144,7 @@ $coursList = getAllCours($conn);
 </tr>
 
         <tr>
-            <td>Adresse</td>
+            <td>Anschrift</td>
             <td><input type="text" size="10" maxlength="150" name="adresse" value="<?php echo htmlspecialchars($adresse); ?>" required/></td>
         </tr>
         <tr>
@@ -165,7 +165,7 @@ $coursList = getAllCours($conn);
                     </tr>
                     <tr>
                         <?php
-                        print_r($tagen);
+                        //print_r($tagen);
 
                         for ($i = 0; $i < $NbFirstDay; $i++) echo "<td></td>";
 

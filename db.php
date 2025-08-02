@@ -100,29 +100,31 @@ function getCoursId($conn, $name) {
 // Fonction pour insérer le planning de façon statique
 function initPlanning($conn) {
     $plannings = [
-    ['JAZZ für KIDS', 'Montag', '17:00:00', '18:00:00', 'MARGARET', 'Windhagen'],
-    ['HIP-HOP', 'Montag', '18:00:00', '19:30:00', 'MARGARET', 'Windhagen'],
-    ['LEISTUNG Minis', 'Dienstag', '15:00:00', '16:00:00', 'MAUD', 'Ruppichteroth'],
-    ['PRE-BALLETT 2', 'Dienstag', '16:15:00', '17:00:00', 'NICOLE', 'Ruppichteroth'],
-    ['PRE-BALLETT 1', 'Dienstag', '16:00:00', '16:45:00', 'LISA', 'Ruppichteroth'],
-    ['KIDS 1. & 2. STUFE', 'Dienstag', '17:15:00', '18:15:00', 'LISA', 'Ruppichteroth'],
-    ['TEENS 2', 'Dienstag', '18:25:00', '19:40:00', 'MAUD/LISA', 'Ruppichteroth'],
-    ['ERWACHSENE', 'Dienstag', '19:45:00', '21:00:00', 'LISA', 'Ruppichteroth'],
-    ['LEISTUNG Junior', 'Mittwoch', '17:00:00', '18:00:00', 'MAUD', 'Ruppichteroth'],
-    ['LEISTUNG Pre-Pros', 'Mittwoch', '17:00:00', '19:00:00', 'MAUD', 'Ruppichteroth'],
-    ['KIDS 1. & 2. STUFE', 'Donnerstag', '14:40:00', '15:40:00', 'MAUD', 'Ruppichteroth'],
-    ['PRE-BALLETT 1', 'Donnerstag', '15:50:00', '16:35:00', 'MAUD', 'Ruppichteroth'],
-    ['KIDS 1. & 2. STUFE', 'Donnerstag', '16:45:00', '17:45:00', 'MAUD', 'Ruppichteroth'],
-    ['TEENS 1 open level', 'Donnerstag', '18:00:00', '19:15:00', 'CLAUDIO', 'Ruppichteroth'],
-    ['ERWACHSENE', 'Donnerstag', '19:30:00', '21:00:00', 'CLAUDIO', 'Ruppichteroth'],
-    ['LEISTUNG Minis', 'Freitag', '14:30:00', '15:30:00', 'MAUD', 'Ruppichteroth'],
-    ['LEISTUNG Junior', 'Freitag', '15:45:00', '17:45:00', 'MAUD', 'Ruppichteroth'],
-    ['LEISTUNG Pre-Pros', 'Freitag', '18:00:00', '19:30:00', 'MAUD', 'Ruppichteroth'],
-    ['LEISTUNG Pre-Pros', 'Freitag', '19:30:00', '20:30:00', 'MAUD', 'Ruppichteroth'],
-    ['PRE-BALLETT 1', 'Samstag', '09:45:00', '10:30:00', 'MAUD', 'Ruppichteroth'],
-    ['PRE-BALLETT 2', 'Samstag', '10:45:00', '11:30:00', 'MAUD', 'Ruppichteroth'],
-    ['LEISTUNG Junior', 'Samstag', '11:45:00', '13:15:00', 'MAUD', 'Ruppichteroth'],
-    ['LEISTUNG Pre-Pros', 'Samstag', '14:30:00', '16:00:00', 'MAUD', 'Ruppichteroth'],
+    //nom , jour , heure deb, heure fin, enseignant, lieu si affinité
+    ['JAZZ für KIDS', 'Montag', '17:00:00', '18:00:00', 'MARGARET', ' '],
+    ['HIP-HOP', 'Montag', '18:00:00', '19:30:00', 'MARGARET', ' '],
+    ['LEISTUNG Minis', 'Dienstag', '15:00:00', '16:00:00', 'MAUD', 'SPORTPARK WINDHAGEN'],
+    ['PRE-BALLETT 2', 'Dienstag', '16:15:00', '17:00:00', 'NICOLE', 'SPORTPARK WINDHAGEN'],
+    ['PRE-BALLETT 1', 'Dienstag', '16:00:00', '16:45:00', 'LISA', 'SPORTPARK WINDHAGEN'],
+    ['KIDS 1. & 2. STUFE', 'Dienstag', '17:15:00', '18:15:00', 'LISA', ' '],
+    ['TEENS 2', 'Dienstag', '18:25:00', '19:40:00', 'MAUD/LISA', ' '],
+    ['ERWACHSENE', 'Dienstag', '19:45:00', '21:00:00', 'LISA', ' '],
+    ['LEISTUNG Junior', 'Mittwoch', '17:00:00', '18:00:00', 'MAUD', ' '],
+    ['LEISTUNG Pre-Pros', 'Mittwoch', '17:00:00', '19:00:00', 'MAUD', ' '],
+    ['KIDS 1. & 2. STUFE', 'Donnerstag', '14:40:00', '15:40:00', 'MAUD', ' '],
+    ['PRE-BALLETT 1', 'Donnerstag', '15:50:00', '16:35:00', 'MAUD', ' '],
+    ['KIDS 1. & 2. STUFE', 'Donnerstag', '16:45:00', '17:45:00', 'MAUD', ' '],
+    ['TEENS 1 open level', 'Donnerstag', '18:00:00', '19:15:00', 'CLAUDIO', ' '],
+    ['ERWACHSENE', 'Donnerstag', '19:30:00', '21:00:00', 'CLAUDIO', ' '],
+    ['LEISTUNG Minis', 'Freitag', '14:30:00', '15:30:00', 'MAUD', ' '],
+    ['LEISTUNG Junior', 'Freitag', '15:45:00', '17:45:00', 'MAUD', ' '],
+    ['LEISTUNG Pre-Pros', 'Freitag', '18:00:00', '19:30:00', 'MAUD', ' '],
+    ['LEISTUNG Pre-Pros', 'Freitag', '19:30:00', '20:30:00', 'MAUD', ' '],
+    ['PRE-BALLETT 1', 'Samstag', '09:45:00', '10:30:00', 'MAUD', ' '],
+    ['PRE-BALLETT 2', 'Samstag', '10:45:00', '11:30:00', 'MAUD', ' '],
+    ['LEISTUNG Junior', 'Samstag', '11:45:00', '13:15:00', 'MAUD', ' '],
+    ['LEISTUNG Pre-Pros', 'Samstag', '14:30:00', '16:00:00', 'MAUD', ' '],
+    
 ];
 
     foreach ($plannings as $p) {
@@ -308,7 +310,7 @@ function getPriceBySelectedSeances($conn, $selectedSeances) {
 
         // Format de la phrase
         $datesList = implode(', ', $datesByCours[$coursId]);
-        $sentence = "$nbSeances unterricht @ {$priceUnite}€: am $datesList.";
+        $sentence = "$nbSeances Unterricht @ {$priceUnite}€: am $datesList.";//////A CORRIGRE CEST LA DATE PAS L'HEURE (actuellement c'est l'hure)
         $details[] = $sentence;
     }
 
