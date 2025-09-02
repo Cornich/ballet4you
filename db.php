@@ -39,6 +39,11 @@ CREATE TABLE IF NOT EXISTS init_flag (
     id INT PRIMARY KEY,
     initialized BOOLEAN NOT NULL
 );
+CREATE TABLE IF NOT EXISTS vacances_perso(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    dateDeb DATE not null,
+    dateFin DATE not null
+)
 ";
 
 if ($conn->multi_query($sqlTables)) {
@@ -320,5 +325,10 @@ function getPriceBySelectedSeances($conn, $selectedSeances) {
     ];
 }
 
-
+function getVacancesPerso(){
+    $stmt = $conn->prepare("SELECT dateDeb, dateFin FROM vacances_perso");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result;
+}
 ?>

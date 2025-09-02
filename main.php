@@ -200,6 +200,35 @@
                             elseif($date["inactive"]==2) $estEnVac=1;
                             elseif($estEnVac==1) {$dates[$key]["inactive"]=3;}
                         }
+                        $vacancesPerso=getVacancesPerso();
+
+                        foreach($vacances as $vacancesPerso){//application des vacances
+                            if(strcmp($vacancePerso["dateDeb"],$vacancePerso["dateFin"])==0 and array_key_exists( $vacancePerso["dateFin"],$dates) ){
+                                $dates[$vacancePerso["dateFin"]]["inactive"]=1;
+                                echo("monovac: ".$vacancePerso["dateDeb"]." ".$vacancePerso["dateFin"]);
+                            }
+                            else{
+                                if(array_key_exists( $vacancesPerso["dateDeb"],$dates)) {
+                                    $dates[ $vacancesPerso["dateDeb"]   ]["inactive"]=2;
+                                    echo("dateDeb: ". $vacancesPerso["dateDeb"]);
+                                    if($pasdeb==1){ $pasdeb=0;}
+                                }
+                                if(array_key_exists( $vacancesPerso["dateFin"],$dates)) {
+                                    $dates[ $vacancesPerso["dateFin"] ]["inactive"]=4;
+                                    echo("end: ". $vacancesPerso["dateFin"]);
+                                    if($pasdeb==1) {$pasdeb=2;}
+                                }
+                            }
+                        }
+
+                        if($pasdeb==2)$estEnVac=1;
+                        else $estEnVac=0;
+
+                        foreach($dates as $key => $date ){
+                            if($date["inactive"]==4)$estEnVac=0;
+                            elseif($date["inactive"]==2) $estEnVac=1;
+                            elseif($estEnVac==1) {$dates[$key]["inactive"]=3;}
+                        }
 
                         
                         return $dates;
