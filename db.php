@@ -340,4 +340,39 @@ function getVacancesPerso($conn) {
     }
     return $vacances;
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['supprimer_vacance'])) {
+    $idVac = $_POST['vacSup'] ?? null;
+    if ($idVac !== null && is_numeric($idVac)) {
+        $stmt = $conn->prepare("DELETE FROM vacances_perso WHERE id=?");
+        $stmt->bind_param("i", $idVac);
+        $stmt->execute();
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_vacance'])) {
+    $dateDeb = $_POST['dateDeb'] ?? null;
+    $dateFin = $_POST['dateFin'] ?? null;
+
+    if (empty($dateDeb) || empty($dateFin)) {
+        die("Les dates de début et de fin sont obligatoires.");
+    }
+
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateDeb) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFin)) {
+        die("Format de date invalide. Utilisez le format AAAA-MM-JJ.");
+    }
+
+    $stmt = $conn->prepare("INSERT INTO vacances_perso (dateDeb, dateFin) VALUES (?, ?)");
+    if (!$stmt) {
+        die("Erreur de préparation de la requête : " . $conn->error);
+    }
+
+    $stmt->bind_param("ss", $dateDeb, $dateFin);
+    if (!$stmt->execute()) {
+        die("Erreur lors de l'ajout des vacances : " . $stmt->error);
+    }
+
+    $stmt->close();
+    //echo "Vacances ajoutées avec succès !";
+}
 ?>
