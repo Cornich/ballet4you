@@ -131,6 +131,39 @@ function getDaysInMonth($date, $decalage, $duree, $vacances, $jferies): array {
         elseif ($estEnVac == 1) $dates[$key]["inactive"] = 3;
     }
 
+    $vacancesPerso=getVacancesPerso();
+    print_r($vacancesPerso);
+    echo("coucou là");
+
+    foreach($vacances as $vacancesPerso){//application des vacances de la BDD
+        if(strcmp($vacances["dateDeb"],$vacances["dateFin"])==0 and array_key_exists( $vacances["dateFin"],$dates) ){
+            $dates[$vacances["dateFin"]]["inactive"]=1;
+            echo("monovac: ".$vacances["dateDeb"]." ".$vacances["dateFin"]);
+        }
+        else{
+            if(array_key_exists( $vacances["dateDeb"],$dates)) {
+                $dates[ $vacances["dateDeb"]   ]["inactive"]=2;
+                echo("dateDeb: ". $vacances["dateDeb"]);
+                if($pasdeb==1){ $pasdeb=0;}
+            }
+            if(array_key_exists( $vacances["dateFin"],$dates)) {
+                $dates[ $vacances["dateFin"] ]["inactive"]=4;
+                echo("end: ". $vacances["dateFin"]);
+                if($pasdeb==1) {$pasdeb=2;}
+            }
+        }
+    }
+
+    if($pasdeb==2)$estEnVac=1;
+    else $estEnVac=0;
+
+    foreach($dates as $key => $date ){
+        if($date["inactive"]==4)$estEnVac=0;
+        elseif($date["inactive"]==2) $estEnVac=1;
+        elseif($estEnVac==1) {$dates[$key]["inactive"]=3;}
+    }
+
+
     return $dates;
 }
 

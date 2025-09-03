@@ -325,10 +325,19 @@ function getPriceBySelectedSeances($conn, $selectedSeances) {
     ];
 }
 
-function getVacancesPerso(){
-    $stmt = $conn->prepare("SELECT dateDeb, dateFin FROM vacances_perso");
+function getVacancesPerso($conn) {
+    $stmt = $conn->prepare("SELECT id, dateDeb, dateFin FROM vacances_perso");
     $stmt->execute();
     $result = $stmt->get_result();
-    return $result;
+    $vacances = [];
+    while ($row = $result->fetch_assoc()) {
+        $vacances[] = [
+            "id" => $row['id'],
+            "dateDeb" => $row['dateDeb'],
+            "dateFin" => $row['dateFin']
+            // Tu peux ajouter d'autres champs si besoin
+        ];
+    }
+    return $vacances;
 }
 ?>

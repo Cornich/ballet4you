@@ -69,7 +69,7 @@ $date = new DateTime();
 $monthDate = (clone $date)->modify("+{$decalage} months");
 
 // Récupération des jours du mois
-$tagen = getDaysInMonth($date, $decalage, 0, $vacances, $feiertage);
+$tagen = getDaysInMonth($date, $decalage, 0, $vacances, $feiertage,$conn);
 $firstMonth = substr(array_key_first($tagen), 0, 7);
 $_SESSION['firstMonth'] = $firstMonth;
 $NbFirstDay = getIdFromName(reset($tagen)["name"]);
@@ -88,6 +88,9 @@ $coursList = getAllCours($conn);
 ?>
 
 <!DOCTYPE html>
+<header>
+    <title>Ballet4you: Anmeldung-Formular</title>
+</header>
 
 <body>
 
