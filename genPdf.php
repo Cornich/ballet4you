@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['Senden'])) {
     //$firstMonth = $_SESSION['firstMonth'] ?? null;
     //$monthDate = new DateTime($firstMonth . '-01');
     $destinataire = !empty($tuteur) ? $tuteur : $name . ' ' . $vorname;
-    $selected_seances = $_SESSION['selected_seances'] ?? [];
+    $selected_seances = $_POST['selected_seances'];
     $result = getPriceBySelectedSeances($conn, $selected_seances);
     $priceSelectedSeances = $result['total'];
     $totalPrice1stMonth = $priceSelectedSeances + 45;

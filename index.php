@@ -16,15 +16,15 @@ $adresse = $_SESSION['adresse'] ?? "";
 $moisAnnee = $_SESSION['moisAnnee'] ?? "";
 $decalage = $_SESSION['decalage'] ?? 0;
 
-$selected_seances = $_SESSION['selected_seances'] ?? [];
+$selected_seances = /*$_SESSION['selected_seances'] ??*/ [];
 
 $cours_id = $_POST['cours_id'] ?? $_SESSION['cours_id'] ?? "";
 $_SESSION['cours_id'] = $cours_id;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['selected_seances'])) {
-                $_SESSION['selected_seances'] = $_POST['selected_seances'];
-    }
+    //if (isset($_POST['selected_seances'])) {
+    //            $_SESSION['selected_seances'] = $_POST['selected_seances'];
+    //}
     if (!isset($_POST['Senden'])) {
         if (isset($_POST['name'])) $name = $_POST['name'];
         if (isset($_POST['vorname'])) $vorname = $_POST['vorname'];
