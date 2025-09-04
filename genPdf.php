@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['Senden'])) {
     $selected_seances = $_SESSION['selected_seances'] ?? [];
     $result = getPriceBySelectedSeances($conn, $selected_seances);
     $priceSelectedSeances = $result['total'];
+    error_log(print_r($selected_seances, true));
     $totalPrice1stMonth = $priceSelectedSeances + 45;
     $details = $result['details'];
     $sentence = implode(' | ', $details);

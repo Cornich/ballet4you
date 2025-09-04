@@ -285,7 +285,7 @@ function getPriceBySelectedSeances($conn, $selectedSeances) {
         if (count($parts) !== 4) continue;
 
         $coursId = intval($parts[0]);
-        $date = $parts[3];
+        $date = $parts[1];
 
         // Compter les séances
         if (!isset($countByCours[$coursId])) {
@@ -300,6 +300,7 @@ function getPriceBySelectedSeances($conn, $selectedSeances) {
     $details = [];
     $total = 0;
 
+    error_log(print_r($selectedSeances, true));
     foreach ($countByCours as $coursId => $nbSeances) {
         // Récupérer le prix unitaire
         $stmt = $conn->prepare("SELECT priceUnite FROM cours WHERE id = ?");
@@ -315,8 +316,7 @@ function getPriceBySelectedSeances($conn, $selectedSeances) {
 
         // Format de la phrase
         $datesList = implode(', ', $datesByCours[$coursId]);
-        $sentence = "$nbSeances Unterricht @ {$priceUnite}€: am $datesList.";//////A CORRIGRE CEST LA DATE PAS L'HEURE (actuellement c'est l'hure)
-        $details[] = $sentence;
+        $sentence = "$nbSeances Unterricht @ {$priceUnite}€: am $datesList.";
     }
 
     return [
