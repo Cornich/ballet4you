@@ -280,12 +280,14 @@ function getPriceBySelectedSeances($conn, $selectedSeances) {
     $datesByCours = [];        // [cours_id => [dates]]
     $priceByCours = [];        // [cours_id => prix]
 
+    error_log(print_r($selectedSeances));
     foreach ($selectedSeances as $entry) {
+        error_log($entry);
         $parts = explode('|', $entry);
         if (count($parts) !== 4) continue;
 
         $coursId = intval($parts[0]);
-        $date = $parts[3];
+        $date = $parts[1]." - ".$parts[2];
 
         // Compter les séances
         if (!isset($countByCours[$coursId])) {
