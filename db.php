@@ -106,14 +106,14 @@ function getCoursId($conn, $name) {
 function initPlanning($conn) {
     $plannings = [
     //nom , jour , heure deb, heure fin, enseignant, lieu si affinité
-    ['JAZZ für KIDS', 'Montag', '17:00:00', '18:00:00', 'MARGARET', ' '],
-    ['HIP-HOP', 'Montag', '18:00:00', '19:30:00', 'MARGARET', ' '],
+    ['JAZZ für KIDS', 'Montag', '17:00', '18:00', 'MARGARET', ' '],
+    ['HIP-HOP', 'Montag', '18:00', '19:30', 'MARGARET', ' '],
     ['LEISTUNG Minis', 'Dienstag', '15:00:00', '16:00:00', 'MAUD', 'SPORTPARK WINDHAGEN'],
     ['PRE-BALLETT 2', 'Dienstag', '16:15:00', '17:00:00', 'NICOLE', 'SPORTPARK WINDHAGEN'],
     ['PRE-BALLETT 1', 'Dienstag', '16:00:00', '16:45:00', 'LISA', 'SPORTPARK WINDHAGEN'],
     ['KIDS 1. & 2. STUFE', 'Dienstag', '17:15:00', '18:15:00', 'LISA', ' '],
     ['TEENS 2', 'Dienstag', '18:25:00', '19:40:00', 'MAUD/LISA', ' '],
-    ['ERWACHSENE', 'Dienstag', '19:45:00', '21:00:00', 'LISA', ' '],
+    ['ERWACHSENE', 'Dienstag', '19:45', '21:00', 'LISA', ' '],
     ['LEISTUNG Junior', 'Mittwoch', '17:00:00', '18:00:00', 'MAUD', ' '],
     ['LEISTUNG Pre-Pros', 'Mittwoch', '17:00:00', '19:00:00', 'MAUD', ' '],
     ['KIDS 1. & 2. STUFE', 'Donnerstag', '14:40:00', '15:40:00', 'MAUD', ' '],
@@ -252,7 +252,7 @@ function getMonthPriceById($conn, $cours_id) {
 
 function getPlanningByCoursId($conn, $cours_id) {
     $stmt = $conn->prepare("
-        SELECT jour, debut, fin, prof, adresse 
+        SELECT jour, DATE_FORMAT(debut, '%H:%i') AS debut, DATE_FORMAT(fin, '%H:%i') AS fin, prof, adresse 
         FROM planning 
         WHERE cours_id = ?
     ");
