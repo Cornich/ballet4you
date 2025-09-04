@@ -280,8 +280,11 @@ function getPriceBySelectedSeances($conn, $selectedSeances) {
     $datesByCours = [];        // [cours_id => [dates]]
     $priceByCours = [];        // [cours_id => prix]
 
+    error_log("seances: ".print_r($selectedSeances));
     foreach ($selectedSeances as $entry) {
         $parts = explode('|', $entry);
+        error_log($entry);
+        error_log(print_r($parts));
         if (count($parts) !== 4) continue;
 
         $coursId = intval($parts[0]);
@@ -291,6 +294,7 @@ function getPriceBySelectedSeances($conn, $selectedSeances) {
         if (!isset($countByCours[$coursId])) {
             $countByCours[$coursId] = 0;
             $datesByCours[$coursId] = [];
+            error_log("(!isset(countByCours[coursId]))");
         }
 
         $countByCours[$coursId]++;
@@ -300,9 +304,10 @@ function getPriceBySelectedSeances($conn, $selectedSeances) {
     $details = [];
     $total = 0;
 
-    error_log(print_r($selectedSeances, true));
+    error_log(print_r($countByCours));
     foreach ($countByCours as $coursId => $nbSeances) {
         // Récupérer le prix unitaire
+        error_log($coursId);
         $stmt = $conn->prepare("SELECT priceUnite FROM cours WHERE id = ?");
         $stmt->bind_param("i", $coursId);
         $stmt->execute();

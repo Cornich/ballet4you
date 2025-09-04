@@ -196,18 +196,18 @@ $coursList = getAllCours($conn);
                                 if (!empty($infos) && $tinfo["inactive"] == 0) {
                                     /*if($decalage === 0)
                                     {*/
-                                    $jourDate = htmlspecialchars($tag); // ex: "2025-07-22"
-                                    $value = $cours_id . '|' . $jourDate . '|' . $info['debut'] . '|' . $info['fin'];
-                                    $dateObj = new DateTime($jourDate);
-                                    // Formatage du mois en toutes lettres + année
-                                    $moisAnnee = $dateObj->format('F Y'); // ex: "April 2025"
-                                    echo "<label style='font-size:11px; display:block;'>";
-                                    echo "<input type='checkbox' class='seance-checkbox' name='selected_seances[]' value='" . $value . "' " . (in_array($value, $selected_seances) ? 'checked' : '') . ">";
+                                        $jourDate = htmlspecialchars($tag); // ex: "2025-07-22"
+                                        $value = $cours_id . '|' . $jourDate . '|' . $info['debut'] . '|' . $info['fin'];
+                                        $dateObj = new DateTime($jourDate);
+                                        // Formatage du mois en toutes lettres + année
+                                        $moisAnnee = $dateObj->format('F Y'); // ex: "April 2025"
+                                        echo "<label style='font-size:11px; display:block;'>";
+                                        echo "<input type='checkbox' class='seance-checkbox' name='selected_seances[]' value='" . $value . "' " . (in_array($value, $selected_seances) ? 'checked' : '') . ">";
 
-                                    echo "<strong>" . htmlspecialchars($info['debut']) . " - " . htmlspecialchars($info['fin']) . "</strong>" . "<br>";
-                                    echo "<strong>" . htmlspecialchars($info['adresse']) . "</strong>" . "<br>";
-                                    echo "<strong>" . htmlspecialchars($info['prof']) . "</strong>" . "<br>";
-                                    echo "</label>";
+                                        echo "<strong>" . htmlspecialchars($info['debut']) . " - " . htmlspecialchars($info['fin']) . "</strong>" . "<br>";
+                                        echo "<strong>" . htmlspecialchars($info['adresse']) . "</strong>" . "<br>";
+                                        echo "<strong>" . htmlspecialchars($info['prof']) . "</strong>" . "<br>";
+                                        echo "</label>";
                                     /*}
                                     else {
                                         echo "<strong>" . htmlspecialchars($info['debut']) . " - " . htmlspecialchars($info['fin']) . "</strong>" . "<br>";
@@ -248,7 +248,7 @@ $coursList = getAllCours($conn);
 </table>
 
 <script>
-/*document.querySelectorAll(".seance-checkbox").forEach(checkbox => {
+document.querySelectorAll(".seance-checkbox").forEach(checkbox => {
   checkbox.addEventListener('change', function() {
     const value = this.value;
     const checked = this.checked;
@@ -271,7 +271,7 @@ $coursList = getAllCours($conn);
     })
     .catch(err => console.error('Erreur AJAX:', err));
   });
-});*/
+});
 </script>
 
 
