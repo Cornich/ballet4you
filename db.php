@@ -280,9 +280,9 @@ function getPriceBySelectedSeances($conn, $selectedSeances) {
     $datesByCours = [];        // [cours_id => [dates]]
     $priceByCours = [];        // [cours_id => prix]
 
-    error_log(print_r($selectedSeances));
+    //error_log(print_r($selectedSeances));
     foreach ($selectedSeances as $entry) {
-        error_log($entry);
+        //error_log($entry);
         $parts = explode('|', $entry);
         if (count($parts) !== 4) continue;
 
@@ -317,7 +317,8 @@ function getPriceBySelectedSeances($conn, $selectedSeances) {
 
         // Format de la phrase
         $datesList = implode(', ', $datesByCours[$coursId]);
-        $sentence = "$nbSeances Unterricht @ {$priceUnite}€: am $datesList.";//////A CORRIGRE CEST LA DATE PAS L'HEURE (actuellement c'est l'hure)
+        $sentence = "$nbSeances Unterricht @ {$priceUnite}€: am $datesList.";
+        error_log($sentence);
         $details[] = $sentence;
     }
 

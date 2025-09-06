@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['Senden'])) {
     //$monthDate = new DateTime($firstMonth . '-01');
     $destinataire = !empty($tuteur) ? $tuteur : $name . ' ' . $vorname;
     $selected_seances = $_POST['selected_seances'];
+    //error_log(print_r($selected_seances));
     $result = getPriceBySelectedSeances($conn, $selected_seances);
     $priceSelectedSeances = $result['total'];
     $totalPrice1stMonth = $priceSelectedSeances + 45;
@@ -118,6 +119,9 @@ $html = "
 <br><br><br></div>
 <div class='bloc-footer'> <p style='color: #e3a0cf; font-size: 10px; text-align: center;'>Maud Tolédano ● Ballet4you ● Aegidiusplatz 2. Aegidius-Passage. 53604 Bad Honnef. www.ballet4you.de ● Steuer I.D. Nummer: 52580341656</p></div>
 ";
+
+$recapitule= "-$dateDuJour: $destinataire ($adresse) vor $name $vorname </br>    $coursName</br>    Anfang:$moisAnnee - $totalPrice1stMonth € ($sentence)";
+error_log($recapitule);
 
 // Écrire le HTML dans le PDF
 $mpdf->WriteHTML($html);
