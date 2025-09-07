@@ -1,10 +1,10 @@
 <?php
 include 'db.php';          // Connexion à la base de données
-include 'includes/header.php';  // Entête HTML
 
 session_start();
 
 require 'config.php';
+include 'includes/header.php';
 
 // Initialisation variables depuis session
 $name = $_SESSION['name'] ?? "";
@@ -87,15 +87,27 @@ if (!empty($cours_id)) {
 $coursList = getAllCours($conn);
 ?>
 
-<!DOCTYPE html>
-<header>
-    <title>Ballet4you: Anmeldung-Formular</title>
-</header>
+<div class="logo-container">
+    <img src="img/logo-nobackground-5000.png" alt="Logo" class="logo">
+</div>
 
-<body>
 
-<table>
-    <form method="post">
+<div class="header-line">
+
+    <!-- Bouton retour à gauche -->
+    <a href="http://www.ballet4you.de" class="back-button">
+        Hauptseite
+    </a>
+
+    <!-- Titre centré -->
+    <h1 style="margin:0; text-align:center; font-size:1.5em;">Online Anmeldung-Formular</h1>
+</div>
+
+
+<div class="form-wrapper">
+<form method="post">
+    <table>
+    
         <tr>
             <td>Name</td>
             <td><input type="text" size="10" maxlength="150" name="name" value="<?php echo htmlspecialchars($name); ?>" required/></td>
@@ -150,20 +162,27 @@ $coursList = getAllCours($conn);
             <td>Anschrift</td>
             <td><input type="text" size="10" maxlength="150" name="adresse" value="<?php echo htmlspecialchars($adresse); ?>" required/></td>
         </tr>
-        <tr>
-            <td>Die Anmeldung gilt ab dem Monat</td>
-            <td>
-                <input type="submit" name="-" value="←">
-                <input type="hidden" name="decalage" value="<?php echo $decalage ?>">
-                <?php echo substr(array_key_first($tagen), 0, 7) ?>
-                <input type="submit" name="+" value="→">
-            </td>
-        </tr>
-        <tr>
-            <td>Kalender</td>
-            <td>
-                <table border="1" cellspacing="0" cellpadding="5">
-                    <tr>
+    </table>
+</div>
+
+        <div style="text-align:center; padding:10px 0; font-weight:bold; font-size:1.2em;">
+            Die Anmeldung gilt ab dem Monat
+            <input type="submit" name="-" value="←" style="margin:0 5px; padding:5px 10px; border-radius:3px; border:1px solid #ccc;">
+            <input type="hidden" name="decalage" value="<?php echo $decalage ?>">
+            <?php echo substr(array_key_first($tagen), 0, 7) ?>
+            <input type="submit" name="+" value="→" style="margin:0 5px; padding:5px 10px; border-radius:3px; border:1px solid #ccc;">
+        </div>
+
+
+
+        <div style="text-align:center; padding:10px 0; font-weight:bold; font-size:1.3em;">
+            Kalender
+            </div>
+
+            <div style="display:flex; justify-content:center; margin-bottom:15px;">
+                <table border="1" cellspacing="0" cellpadding="5" style="border-collapse:collapse; text-align:center; min-width:500px;">
+                    <tr style="color:#fff; background:#4D5469; font-weight:bold;">
+                    
                         <td>Montag</td><td>Dienstag</td><td>Mittwoch</td><td>Donnerstag</td><td>Freitag</td><td>Samstag</td><td>Sonntag</td>
                     </tr>
                     <tr>
@@ -237,16 +256,20 @@ $coursList = getAllCours($conn);
                         ?>
                     </tr>
                 </table>
-            </td>
-        </tr>
-        <tr>
-            <td><input type="hidden" name="senden_clicked" value="1"> 
-            <input type="hidden" name="moisAnnee" value="<?php echo htmlspecialchars($moisAnnee); ?>">
-            <input type="submit" name="Senden" value="Senden" formaction="genPdf.php"/></td>
-        </tr>
-    </form>
-</table>
+            </div>
 
+
+<div style="text-align:center; margin-top:20px;">
+    <input type="hidden" name="senden_clicked" value="1"> 
+    <input type="hidden" name="moisAnnee" value="<?php echo htmlspecialchars($moisAnnee); ?>">
+    <input type="submit" name="Senden" value="Senden" formaction="genPdf.php"
+           style="padding:10px 20px; border-radius:5px; border:1px solid #aaa; background:#f0f0f0; cursor:pointer; font-weight:bold; font-size:1em;">
+</div>
+
+        
+    
+
+</form>
 <script>
 /*document.querySelectorAll(".seance-checkbox").forEach(checkbox => {
   checkbox.addEventListener('change', function() {
@@ -274,8 +297,24 @@ $coursList = getAllCours($conn);
 });*/
 </script>
 
+<script>
+const birthInput = document.getElementById("geburtsdatum");
 
-</body>
+birthInput.addEventListener("input", function() {
+    let value = birthInput.value.replace(/\D/g, ""); // enlever tout sauf les chiffres
+
+    if (value.length > 8) value = value.slice(0, 8); // limiter à 8 chiffres
+
+    let formatted = "";
+    for (let i = 0; i < value.length; i++) {
+        formatted += value[i];
+        if (i === 1 || i === 3) formatted += "/"; // ajouter / après jj et mm
+    }
+
+    birthInput.value = formatted;
+});
+</script>
+
 
 <script>
 // Fonction de vérification d'âge (basée sur la date au format dd/mm/yyyy)
@@ -316,6 +355,5 @@ function checkAgeAndToggleTutor() {
 window.addEventListener('DOMContentLoaded', checkAgeAndToggleTutor);
 </script>
 
-</html>
 <?php
 include 'includes/footer.php';  // Pied de page ?>

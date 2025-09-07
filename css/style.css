@@ -1,7 +1,16 @@
 input, select {
-    padding: 5px;
+    padding: 8px;
     border: 1px solid #ccc;
-    border-radius: 3px;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+/* Effet au focus */
+input:focus, select:focus {
+    border-color: #e3a0cf;
+    outline: none;
+    box-shadow: 0 0 5px rgba(227, 160, 207, 0.5);
 }
 
 table {
@@ -14,10 +23,65 @@ td {
 }
 
 td.cours {
-    background-color: #fde7fb;
+    background-color: #f8f0f0;
 }
 
 td.ferie {
     background-color: #e0e0e0;
     color: #888;
 }
+
+input[type="email"]::before {
+    content: "@";
+}
+
+/* Logo */
+.logo-container {
+    background-color: #f8f0f0;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.logo {
+    max-width: 200px;
+}
+
+/* Header avec titre et bouton */
+.header-line {
+    position: relative;
+    padding: 15px 20px;
+    background-color: #fff;
+}
+
+.back-button {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #000;
+    background-color: #f8f0f0;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+/* Form wrapper centré */
+.form-wrapper {
+    background-color: #f8f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.titre-mois input[type="submit"] {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
