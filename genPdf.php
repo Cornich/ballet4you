@@ -123,6 +123,21 @@ $html = "
 $recapitule= "-$dateDuJour: $destinataire ($adresse) vor $name $vorname </br>    $coursName</br>    Anfang:$moisAnnee - $totalPrice1stMonth € ($sentence)";
 error_log($recapitule);
 
+/*
+create table if not exists facture(
+    idFac varchar(16) primary key not null,
+    dateDuJour varchar(15),
+    destinataire varchar(100),
+    adresse varchar(150),
+    nom varchar(100),
+    prenom varchar(100),
+    idCours int REFERENCES cours(id),
+    moisAnnee varchar(10),
+    totalPriceFirstMonth int,
+    recapPremMois varchar(150)
+);*/
+
+enregFac($conn,$dateDuJour,$destinataire,$adresse,$name,$vorname,$cours_id,$moisAnnee,$totalPrice1stMonth,$sentence);
 // Écrire le HTML dans le PDF
 $mpdf->WriteHTML($html);
 

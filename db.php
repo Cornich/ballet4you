@@ -43,7 +43,21 @@ CREATE TABLE IF NOT EXISTS vacances_perso(
     id INT AUTO_INCREMENT PRIMARY KEY,
     dateDeb DATE not null,
     dateFin DATE not null
-)
+);
+
+
+create table if not exists facture(
+    idFac varchar(16) primary key not null,
+    dateDuJour varchar(15),
+    destinataire varchar(100),
+    adresse varchar(150),
+    nom varchar(100),
+    prenom varchar(100),
+    idCours int REFERENCES cours(id),
+    moisAnnee varchar(),
+    totalPriceFirstMonth int,
+    recapPremMois varchar(150)
+);
 ";
 
 if ($conn->multi_query($sqlTables)) {
@@ -344,6 +358,15 @@ function getVacancesPerso($conn) {
     return $vacances;
 }
 
+function getIdFac($conn){//renvoie le nombre de factures dans l'année en cours
+    $stmt = $conn->prepare("SELECT COUNT(*)
+                            FROM factures
+                            WHERE RIGHT(dateDuJour, 4) = CAST(YEAR(CURRENT_DATE) AS CHAR(4));");
+    $stmt->execute();
+    return((int) $stmt->get_result());
+
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['supprimer_vacance'])) {
     $idVac = $_POST['vacSup'] ?? null;
     if ($idVac !== null && is_numeric($idVac)) {
@@ -377,5 +400,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_vacance'])) {
 
     $stmt->close();
     //echo "Vacances ajoutées avec succès !";
+}
+/*function getNbCoursAnneeAct($conn){
+    $stmt = $conn->prepare("SELECT COUNT(*)
+                            FROM facture
+                            WHERE RIGHT(dateDuJour, 4) = CAST(YEAR(CURRENT_DATE) AS CHAR(4));");
+    $result=$stmt->execute() ;                     
+    if ($result) {
+        // Récupérer la première ligne du résultat
+        $row = $result->fetch_assoc();
+        // La valeur numérique est dans $row['nombre']
+        return( $row['nombre']);
+        echo "Nombre de factures pour l'année en cours : " . $nombre;
+    } else {
+       error_log($conn->error);
+       return(-2);
+
+    }
+
+
+    return($stmt->execute());
+}*/
+
+function getNbCoursAnneeAct($conn) {
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) AS nombre
+        FROM facture
+        WHERE RIGHT(dateDuJour, 4) = CAST(YEAR(CURRENT_DATE) AS CHAR(4))
+    ");
+
+    if (!$stmt) {
+        error_log($conn->error);
+        return -2;
+    }
+
+    if (!$stmt->execute()) {
+        error_log($stmt->error);
+        return -2;
+    }
+
+    // Récupérer le résultat
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    // Retourner le nombre
+    return (int)$row['nombre'];
+}
+
+
+function enregFac($conn,$dateDuJour,$destinataire,$adresse,$nom,$prenom,$cours_id,$moisAnnee,$totalPrice1stMonth,$sentence){
+    $annee = date('Y');
+    $nbCours = getNbCoursAnneeAct($conn) + 1;
+    $idFac = $annee . str_pad($nbCours, 4, '0', STR_PAD_LEFT);
+    $stmt = $conn->prepare("insert into facture(idFac,  dateDuJour,destinataire , adresse ,nom ,prenom ,idCours ,moisAnnee  ,totalPriceFirstMonth,recapPremMois)
+                                         values  (?,?,?,?,?,?,?,?,?,?);");
+    $stmt->bind_param("ssssssisis", $idFac,$dateDuJour,$destinataire,$adresse,$nom,$prenom,$cours_id,$moisAnnee,$totalPrice1stMonth,$sentence);    
+    $stmt->execute();                    
+
 }
 ?>
