@@ -54,10 +54,10 @@ create table if not exists facture(
     nom varchar(100),
     prenom varchar(100),
     idCours int REFERENCES cours(id),
-    moisAnnee varchar(),
+    moisAnnee varchar(120),
     totalPriceFirstMonth int,
     recapPremMois varchar(150)
-);
+)
 ";
 
 if ($conn->multi_query($sqlTables)) {
