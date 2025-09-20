@@ -123,36 +123,31 @@ $html = "
 $recapitule= "-$dateDuJour: $destinataire ($adresse) vor $name $vorname </br>    $coursName</br>    Anfang:$moisAnnee - $totalPrice1stMonth € ($sentence)";
 error_log($recapitule);
 
-/*
-create table if not exists facture(
-    idFac varchar(16) primary key not null,
-    dateDuJour varchar(15),
-    destinataire varchar(100),
-    adresse varchar(150),
-    nom varchar(100),
-    prenom varchar(100),
-    idCours int REFERENCES cours(id),
-    moisAnnee varchar(10),
-    totalPriceFirstMonth int,
-    recapPremMois varchar(150)
-);*/
-
 enregFac($conn,$dateDuJour,$destinataire,$adresse,$name,$vorname,$cours_id,$moisAnnee,$totalPrice1stMonth,$sentence);
 // Écrire le HTML dans le PDF
 $mpdf->WriteHTML($html);
 
 // Sortie directe au navigateur (affiche le PDF)
-$mpdf->Output("Rechnung $name $vorname $dateDuJour.pdf", "I");
-    unset($_SESSION['name']);
-    unset($_SESSION['vorname']);
-    unset($_SESSION['geburtsdatum']);
-    unset($_SESSION['erziehungsberechtigter']);
-    unset($_SESSION['email']);
-    unset($_SESSION['adresse']);
-    unset($_SESSION['moisAnnee']);
-    //unset($_SESSION['firstMonth']);
 
-    exit();
+$safeName = str_replace([' ', '/'], '_', $name);
+$safeVorname = str_replace([' ', '/'], '_', $vorname);
+$safeDate = str_replace('/', '_', $dateDuJour);
+
+$filename = "Rechnung__{$safeName}__{$safeVorname}__$safeDate}.pdf"; 
+$mpdf->Output($filename, "I");
+//$mpdf->Output("Rechnung $name $vorname $dateDuJour.pdf", "I");
+
+
+unset($_SESSION['name']);
+unset($_SESSION['vorname']);
+unset($_SESSION['geburtsdatum']);
+unset($_SESSION['erziehungsberechtigter']);
+unset($_SESSION['email']);
+unset($_SESSION['adresse']);
+unset($_SESSION['moisAnnee']);
+//unset($_SESSION['firstMonth']);
+
+exit();
 
 }else {
     // Si on n'est pas en POST ou que le bouton Senden n'est pas cliqué, on redirige vers index.php

@@ -357,6 +357,27 @@ function getVacancesPerso($conn) {
     }
     return $vacances;
 }
+/*idFac    | dateDuJour | destinataire | adresse          | nom   | prenom | idCours | moisAnnee      | totalPriceFirstMonth | recapPremMois*/
+
+function getFactures($conn){
+    $stmt = $conn->prepare("SELECT idFac,name,moisAnnee,nom,prenom,totalPriceFirstMonth,recapPremMois
+                        from facture inner join cours on idCours=id;");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $factures = [];
+    while ($row = $result->fetch_assoc()) {
+        $factures[] = [
+            "idFac"=>$row['idFac'],
+            "name"=>$row['name'],
+            "moisAnnee"=>$row['moisAnnee'],
+            "nom"=>$row['nom'],
+            "prenom"=>$row['prenom'],
+            "totalPriceFirstMonth"=>$row['totalPriceFirstMonth'],
+            "recapPremMois"=>$row['recapPremMois']
+        ];
+    }
+    return $factures;
+}
 
 function getIdFac($conn){//renvoie le nombre de factures dans l'année en cours
     $stmt = $conn->prepare("SELECT COUNT(*)
@@ -458,4 +479,37 @@ function enregFac($conn,$dateDuJour,$destinataire,$adresse,$nom,$prenom,$cours_i
     $stmt->execute();                    
 
 }
+
+function genPdfFromDb($conn,$idFac){
+    "-$dateDuJour: $destinataire ($adresse) vor $name $vorname </br>    $coursName</br>    Anfang:$moisAnnee - $totalPrice1stMonth € ($sentence)";
+    /*    idFac varchar(16) primary key not null,
+    dateDuJour varchar(15),
+    destinataire varchar(100),
+    adresse varchar(150),
+    nom varchar(100),
+    prenom varchar(100),
+    idCours int REFERENCES cours(id),
+    moisAnnee varchar(120),
+    totalPriceFirstMonth int,
+    recapPremMois varchar(150)*/
+
+
+    $stmt = $conn->prepare("SELECT dateDuJour,destinataire,adresse,nom,prenom,moisAnnee,totalPriceFirstMounth,recapPremMois, priceMonth, name
+        from facture inner join cours on idCours=id where idFac=?;");
+        $stmt->bind_param("s",$idFac);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $vacances = [];
+    while ($row = $result->fetch_assoc()) {
+        $vacances[] = [
+            "id" => $row['id'],
+            "dateDeb" => $row['dateDeb'],
+            "dateFin" => $row['dateFin']
+            // Tu peux ajouter d'autres champs si besoin
+        ];
+    }
+    return $vacances;
+}
+
 ?>
