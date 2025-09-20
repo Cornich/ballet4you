@@ -390,21 +390,7 @@ function getFactures($conn){
 }
 
 function getFacture($conn,$idFac){
-    /*$dateDuJour
-$destinataire
-$adresse
-$nom
-$prenom
-$coursName
-$monthPrice
-$moisAnnee
-$totalPrice1stMonth
-$moisAnnee
-$priceSelectedSeances
-$sentence*/
-    $stmt = $conn->prepare("SELECT *
-                        from facture inner join cours on idCours=id where idFac=?;  ");
-
+    $stmt = $conn->prepare("SELECT * from facture inner join cours on idCours=id where idFac=?;  ");
     $stmt->bind_param("i", $idFac);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -508,7 +494,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_planning'])) 
     $cours_id = $_POST['cours_id'] ?? null;
     $jour     = $_POST['jour'] ?? null;
     $debut    = $_POST['debut'] ?? null;
-    $fin  = $_POST['fin'] ?? null;
+    $fin      = $_POST['fin'] ?? null;
     $prof     = $_POST['prof'] ?? null;
     $adresse  = $_POST['adresse'] ?? null;
 
@@ -521,7 +507,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_planning'])) 
         die("Erreur de préparation de la requête : " . $conn->error);
     }
 
-    $stmt->bind_param("sddddd",$cours_id,$jour,$debut,$fin,$prof,$adresse);
+    $stmt->bind_param("dsssss",$cours_id,$jour,$debut,$fin,$prof,$adresse);
     if (!$stmt->execute()) {
         die("Erreur lors de l'ajout des cours : " . $stmt->error);
     }
