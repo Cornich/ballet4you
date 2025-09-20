@@ -49,8 +49,13 @@ unset($_SESSION['moisAnnee']);
 //unset($_SESSION['firstMonth']);
 
 exit();
-
-}else {
+}
+else if(isset($_POST['voirFac'])){
+  $idFac = $_POST['idFac'];
+    $fraisDInscription=45;
+  genPdf($conn,$idFac,$fraisDInscription);
+}
+else {
     // Si on n'est pas en POST ou que le bouton Senden n'est pas cliqué, on redirige vers index.php
     header('Location: index.php');
     exit();
@@ -166,6 +171,6 @@ function genPdf($conn,$idFac,$fraisDInscription){
 //
   //$filename = "Rechnung__{$safeName}__{$safeVorname}__$safeDate}.pdf"; 
   //$mpdf->Output($filename, "I");
-  $mpdf->Output("Rechnung.pdf".$facture['nom']." ".$facture['prenom']." ".$facture['moisAnnee'], "I");
+  $mpdf->Output($idFac."-Rechnung ".$facture['nom']." ".$facture['prenom']." ".$facture['moisAnnee'], "I");
 
 }
