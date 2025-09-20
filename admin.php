@@ -58,18 +58,31 @@ function afficherVac($conn){
                 echo("<tr><td>".$vacance['id']."</td><td>".$vacance['dateDeb']."</td><td>".$vacance['dateFin']."</td></tr>");
             }
 }
+function getColorFromId($id) {
+    $colors=["rgb(255, 251, 139)","rgba(158, 255, 139, 1)","rgba(139, 238, 255, 1)","rgba(245, 139, 255, 1)","rgba(255, 166, 139, 1)","rgba(201, 255, 139, 1)","rgba(139, 218, 255, 1)","rgba(255, 218, 139, 1),
+ rgba(192, 189, 107, 1)","rgba(105, 160, 94, 1)","rgba(87, 152, 163, 1)","rgba(164, 95, 170, 1)","rgba(143, 104, 92, 1)","rgba(107, 129, 81, 1)","rgba(86, 128, 148, 1)","rgba(158, 135, 86, 1),
+  rgba(151, 148, 44, 1)","rgba(65, 158, 47, 1)","rgba(38, 139, 156, 1)","rgba(153, 47, 163, 1)","rgba(158, 92, 72, 1)","rgba(119, 167, 65, 1)","rgba(60, 115, 141, 1)","rgba(158, 127, 59, 1)"];
+  return($colors[$id]);
+    // Utilise un hachage pour obtenir une valeur numérique
+    $hash = crc32($id);
+    // Extrait les composantes RGB à partir du hachage
+    $r = min(255,(($hash & 0xFF0000) >> 16)*1.9);
+    $g = min(255,(($hash & 0x00FF00) >> 8)*1.9);
+    $b = min(255,($hash & 0x0000FF)*1.9);
+    return "rgb($r, $g, $b)"; // Opacité à 0.1 pour un fond léger
+}
 
 function afficherFactures($conn){
             $factures=getFactures($conn);
             foreach($factures as $facture){
-                echo("<tr>
-                        <td>".$facture['idFac']."</td>
-                        <td>".$facture['name']."</td>
-                        <td>".$facture['moisAnnee']."</td>
-                        <td>".$facture['nom']."</td>
-                        <td>".$facture['prenom']."</td>
-                        <td>".$facture['totalPriceFirstMonth']."</td>
-                        <td>".$facture['recapPremMois']."</td>
-                     </tr>");
+            echo "<tr style='background-color:" . getColorFromId($facture['idCours']) . "'>";
+                echo "<td>" . $facture['idFac'] . "</td>";
+                echo "<td>" . $facture['name'] . "</td>";
+                echo "<td>" . $facture['moisAnnee'] . "</td>";
+                echo "<td>" . $facture['nom'] . "</td>";
+                echo "<td>" . $facture['prenom'] . "</td>";
+                echo "<td>" . $facture['totalPriceFirstMonth'] . "</td>";
+                echo "<td>" . $facture['recapPremMois'] . "</td>";
+            echo "</tr>";
             }
 }

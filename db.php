@@ -19,46 +19,46 @@ if ($conn->connect_error) die("Connexion BDD échouée : " . $conn->connect_erro
 
 // Création des tables
 $sqlTables = "
-CREATE TABLE IF NOT EXISTS cours (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    priceMonth DECIMAL(10,2) NOT NULL,
-    priceUnite DECIMAL(10,2) NOT NULL
-);
-CREATE TABLE IF NOT EXISTS planning (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    cours_id INT NOT NULL,
-    jour VARCHAR(20) NOT NULL,
-    debut TIME NOT NULL,
-    fin TIME NOT NULL,
-    prof VARCHAR(20) NOT NULL,
-    adresse varchar(40) not null,
-    FOREIGN KEY (cours_id) REFERENCES cours(id) ON DELETE CASCADE
-);
-CREATE TABLE IF NOT EXISTS init_flag (
-    id INT PRIMARY KEY,
-    initialized BOOLEAN NOT NULL
-);
-CREATE TABLE IF NOT EXISTS vacances_perso(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    dateDeb DATE not null,
-    dateFin DATE not null
-);
+    CREATE TABLE IF NOT EXISTS cours (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL UNIQUE,
+        priceMonth DECIMAL(10,2) NOT NULL,
+        priceUnite DECIMAL(10,2) NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS planning (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        cours_id INT NOT NULL,
+        jour VARCHAR(20) NOT NULL,
+        debut TIME NOT NULL,
+        fin TIME NOT NULL,
+        prof VARCHAR(20) NOT NULL,
+        adresse varchar(40) not null,
+        FOREIGN KEY (cours_id) REFERENCES cours(id) ON DELETE CASCADE
+    );
+    CREATE TABLE IF NOT EXISTS init_flag (
+        id INT PRIMARY KEY,
+        initialized BOOLEAN NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS vacances_perso(
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        dateDeb DATE not null,
+        dateFin DATE not null
+    );
 
 
-create table if not exists facture(
-    idFac varchar(16) primary key not null,
-    dateDuJour varchar(15),
-    destinataire varchar(100),
-    adresse varchar(150),
-    nom varchar(100),
-    prenom varchar(100),
-    idCours int REFERENCES cours(id),
-    moisAnnee varchar(120),
-    totalPriceFirstMonth int,
-    recapPremMois varchar(150)
-)
-";
+    create table if not exists facture(
+        idFac varchar(16) primary key not null,
+        dateDuJour varchar(15),
+        destinataire varchar(100),
+        adresse varchar(150),
+        nom varchar(100),
+        prenom varchar(100),
+        idCours int REFERENCES cours(id),
+        moisAnnee varchar(120),
+        totalPriceFirstMonth int,
+        recapPremMois varchar(150)
+    )
+    ";
 
 if ($conn->multi_query($sqlTables)) {
     do {
@@ -263,7 +263,6 @@ function getMonthPriceById($conn, $cours_id) {
     return round($priceMonth, 2); // Retourne un prix formaté à 2 décimales
 }
 
-
 function getPlanningByCoursId($conn, $cours_id) {
     $stmt = $conn->prepare("
         SELECT jour, DATE_FORMAT(debut, '%H:%i') AS debut, DATE_FORMAT(fin, '%H:%i') AS fin, prof, adresse 
@@ -284,8 +283,6 @@ function getPlanningByCoursId($conn, $cours_id) {
     }
     return $planning; // ex: ['Montag' => [...], 'Dienstag' => [...]]
 }
-
-
 
 function getPriceBySelectedSeances($conn, $selectedSeances) {
     if (empty($selectedSeances)) return ['total' => 0, 'details' => []];
@@ -360,8 +357,8 @@ function getVacancesPerso($conn) {
 /*idFac    | dateDuJour | destinataire | adresse          | nom   | prenom | idCours | moisAnnee      | totalPriceFirstMonth | recapPremMois*/
 
 function getFactures($conn){
-    $stmt = $conn->prepare("SELECT idFac,name,moisAnnee,nom,prenom,totalPriceFirstMonth,recapPremMois
-                        from facture inner join cours on idCours=id;");
+    $stmt = $conn->prepare("SELECT idFac,name,moisAnnee,nom,prenom,totalPriceFirstMonth,recapPremMois,idCours
+                        from facture inner join cours on idCours=id order BY SUBSTRING(idFac, 1, 4) DESC,idCours,SUBSTRING(idFac, 5, 8) DESC;  ");
     $stmt->execute();
     $result = $stmt->get_result();
     $factures = [];
@@ -373,10 +370,34 @@ function getFactures($conn){
             "nom"=>$row['nom'],
             "prenom"=>$row['prenom'],
             "totalPriceFirstMonth"=>$row['totalPriceFirstMonth'],
-            "recapPremMois"=>$row['recapPremMois']
+            "recapPremMois"=>$row['recapPremMois'],
+            "idCours"=>$row['idCours']
         ];
     }
     return $factures;
+}
+
+function getFacture($conn,$idFac){
+    /*$dateDuJour
+$destinataire
+$adresse
+$nom
+$prenom
+$coursName
+$monthPrice
+$moisAnnee
+$totalPrice1stMonth
+$moisAnnee
+$priceSelectedSeances
+$sentence*/
+    $stmt = $conn->prepare("SELECT *
+                        from facture inner join cours on idCours=id where idFac=?;  ");
+
+    $stmt->bind_param("i", $idFac);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return($result->fetch_assoc());
+
 }
 
 function getIdFac($conn){//renvoie le nombre de factures dans l'année en cours
@@ -468,11 +489,13 @@ function getNbCoursAnneeAct($conn) {
     return (int)$row['nombre'];
 }
 
-
-function enregFac($conn,$dateDuJour,$destinataire,$adresse,$nom,$prenom,$cours_id,$moisAnnee,$totalPrice1stMonth,$sentence){
+function getProcNbFac($conn){
     $annee = date('Y');
     $nbCours = getNbCoursAnneeAct($conn) + 1;
     $idFac = $annee . str_pad($nbCours, 4, '0', STR_PAD_LEFT);
+    return($idFac);
+}
+function enregFac($conn,$idFac,$dateDuJour,$destinataire,$adresse,$nom,$prenom,$cours_id,$moisAnnee,$totalPrice1stMonth,$sentence){
     $stmt = $conn->prepare("insert into facture(idFac,  dateDuJour,destinataire , adresse ,nom ,prenom ,idCours ,moisAnnee  ,totalPriceFirstMonth,recapPremMois)
                                          values  (?,?,?,?,?,?,?,?,?,?);");
     $stmt->bind_param("ssssssisis", $idFac,$dateDuJour,$destinataire,$adresse,$nom,$prenom,$cours_id,$moisAnnee,$totalPrice1stMonth,$sentence);    
@@ -481,7 +504,7 @@ function enregFac($conn,$dateDuJour,$destinataire,$adresse,$nom,$prenom,$cours_i
 }
 
 function genPdfFromDb($conn,$idFac){
-    "-$dateDuJour: $destinataire ($adresse) vor $name $vorname </br>    $coursName</br>    Anfang:$moisAnnee - $totalPrice1stMonth € ($sentence)";
+    /*"-$dateDuJour: $destinataire ($adresse) vor $name $vorname </br>    $coursName</br>    Anfang:$moisAnnee - $totalPrice1stMonth € ($sentence)";
     /*    idFac varchar(16) primary key not null,
     dateDuJour varchar(15),
     destinataire varchar(100),
