@@ -1,4 +1,20 @@
 <?php
+// Identifiants de connexion
+$valid_username = 'admin';
+$valid_password = 'ALEX'; // En production, utilisez un mot de passe haché
+
+// Vérification des identifiants
+if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
+    $_SERVER['PHP_AUTH_USER'] !== $valid_username || $_SERVER['PHP_AUTH_PW'] !== $valid_password) {
+    header('WWW-Authenticate: Basic realm="Zone protégée"');
+    header('HTTP/1.0 401 Unauthorized');
+    echo 'Accès refusé.';
+    exit;
+}
+?>
+
+
+<?php
     include 'db.php';          // Connexion à la base de données
     //include 'includes/header.php';  // Entête HTML
     require 'config.php';
