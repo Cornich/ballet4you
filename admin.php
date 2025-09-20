@@ -76,10 +76,10 @@ function afficherFactures($conn){
                 echo "<td>" . $facture['prenom'] . "</td>";
                 echo "<td>" . $facture['totalPriceFirstMonth'] . "</td>";
                 echo "<td>" . $facture['recapPremMois'] . "</td>";
-                echo "<td><form method='POST' action='genPdf.php'>
-                        <input type='hidden' name='idFac' value='" . htmlspecialchars($facture['idFac'], ENT_QUOTES) . "'>
-                        <input type='submit' name='voirFac' value='Voir'>
-                    </form></td>";
+                echo "<td>                    
+                        <a href='genPdf.php?idFac=" . urlencode($facture['idFac']) . "&action=voirFac' target='_blank'>
+                        <button type='button'>Voir</button>
+                    </a></td>";
             echo "</form></tr>";
             }
 }

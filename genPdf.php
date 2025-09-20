@@ -50,11 +50,14 @@ unset($_SESSION['moisAnnee']);
 
 exit();
 }
-else if(isset($_POST['voirFac'])){
-  $idFac = $_POST['idFac'];
-    $fraisDInscription=45;
-  genPdf($conn,$idFac,$fraisDInscription);
+
+else if (isset($_GET['action']) && $_GET['action'] === 'voirFac' && isset($_GET['idFac'])) {
+    $idFac = $_GET['idFac'];
+    $fraisDInscription = 45;
+    genPdf($conn, $idFac, $fraisDInscription);
+    exit();
 }
+
 else {
     // Si on n'est pas en POST ou que le bouton Senden n'est pas cliqué, on redirige vers index.php
     header('Location: index.php');
@@ -64,11 +67,11 @@ else {
 
 function genPdf($conn,$idFac,$fraisDInscription){
   $mpdf = new Mpdf();
-//NOM|Prénom : élève
-//name: nom du cours
- 
- $facture=getFacture($conn,$idFac);
- error_log(print_r($facture));
+  //NOM|Prénom : élève
+  //name: nom du cours
+
+  $facture=getFacture($conn,$idFac);
+  error_log(print_r($facture));
   // HTML avec styles CSS inline
   $html = "
 
@@ -168,7 +171,7 @@ function genPdf($conn,$idFac,$fraisDInscription){
   //$safeName = str_replace([' ', '/'], '_', $name);
   //$safeVorname = str_replace([' ', '/'], '_', $vorname);
   //$safeDate = str_replace('/', '_', $dateDuJour);
-//
+  //
   //$filename = "Rechnung__{$safeName}__{$safeVorname}__$safeDate}.pdf"; 
   //$mpdf->Output($filename, "I");
   $mpdf->Output($idFac."-Rechnung ".$facture['nom']." ".$facture['prenom']." ".$facture['moisAnnee'], "I");
