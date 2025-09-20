@@ -173,7 +173,7 @@ function initPlanning($conn) {
 
 // Fonction pour récupérer tous les cours
 function getAllCours($conn) {
-    $sql = "SELECT id, name FROM cours ORDER BY name";
+    $sql = "SELECT * FROM cours ORDER BY name";
     $result = $conn->query($sql);
     if (!$result) {
         die("Erreur SQL getAllCours : " . $conn->error);
@@ -185,6 +185,18 @@ function getAllCours($conn) {
     return $cours;
 }
 
+function getAllPlannings($conn) {
+    $sql = "SELECT * FROM planning ORDER BY id";
+    $result = $conn->query($sql);
+    if (!$result) {
+        die("Erreur SQL getAllCours : " . $conn->error);
+    }
+    $plannings = [];
+    while ($row = $result->fetch_assoc()) {
+        $plannings[] = $row;
+    }
+    return $plannings;
+}
 // --- Gestion de l'initialisation unique ---
 // Vérifie si la ligne id=1 existe dans init_flag et initialized = true
 $result = $conn->query("SELECT initialized FROM init_flag WHERE id = 1");
@@ -417,6 +429,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['supprimer_vacance']))
         $stmt->execute();
     }
 }
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['supprimer_facture'])) {
+    $idFac = $_POST['facSup'] ?? null;
+    $nomFacSup = $_POST['nomFacSup'] ?? null;
+    if ($idFac !== null && is_numeric($idFac)) {
+        $stmt = $conn->prepare("DELETE FROM facture WHERE idFac=? and nom=?");
+        $stmt->bind_param("is", $idFac,$nomFacSup);
+        $stmt->execute();
+    }
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['supprimer_cours'])) {
+    error_log("je suis appellée");
+    $idCours = $_POST['courSup'] ?? null;
+    if ($idCours !== null && is_numeric($idCours)) {
+        $stmt = $conn->prepare("DELETE FROM cours WHERE id=?");
+        $stmt->bind_param("i", $idCours);
+        $stmt->execute();
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_vacance'])) {
     $dateDeb = $_POST['dateDeb'] ?? null;
@@ -438,6 +468,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_vacance'])) {
     $stmt->bind_param("ss", $dateDeb, $dateFin);
     if (!$stmt->execute()) {
         die("Erreur lors de l'ajout des vacances : " . $stmt->error);
+    }
+
+    $stmt->close();
+    //echo "Vacances ajoutées avec succès !";
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_cours'])) {
+    $name = $_POST['name'] ?? null;
+    $priceMonth = $_POST['priceMonth'] ?? null;
+    $priceUnite = $_POST['priceUnite'] ?? null;
+
+    if (empty($name) || empty($priceMonth) || empty($priceUnite)) {
+        die("Des valeurs sont manquantes !");
+    }
+
+    $stmt = $conn->prepare("INSERT INTO cours (name, priceMonth,priceUnite) VALUES (?, ?,?)");
+    if (!$stmt) {
+        die("Erreur de préparation de la requête : " . $conn->error);
+    }
+
+    $stmt->bind_param("sdd", $name, $priceMonth,$priceUnite);
+    if (!$stmt->execute()) {
+        die("Erreur lors de l'ajout des cours : " . $stmt->error);
+    }
+
+    $stmt->close();
+    //echo "Vacances ajoutées avec succès !";
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_planning'])) {
+    $cours_id = $_POST['cours_id'] ?? null;
+    $jour     = $_POST['jour'] ?? null;
+    $debut    = $_POST['debut'] ?? null;
+    $fin  = $_POST['fin'] ?? null;
+    $prof     = $_POST['prof'] ?? null;
+    $adresse  = $_POST['adresse'] ?? null;
+
+    if ( empty($cours_id) ||empty($jour) ||empty($debut)||empty($fin) ||empty($prof) ||empty($adresse)) {
+        die("Des valeurs sont manquantes !");
+    }
+
+    $stmt = $conn->prepare("INSERT INTO planning (cours_id,jour,debut,fin,prof,adresse) VALUES (?, ?,?,?,?,?)");
+    if (!$stmt) {
+        die("Erreur de préparation de la requête : " . $conn->error);
+    }
+
+    $stmt->bind_param("sddddd",$cours_id,$jour,$debut,$fin,$prof,$adresse);
+    if (!$stmt->execute()) {
+        die("Erreur lors de l'ajout des cours : " . $stmt->error);
+    }
+
+    $stmt->close();
+    //echo "Vacances ajoutées avec succès !";
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['modifierCours'])) {
+    $id = $_POST['id'] ?? null;
+    $name = $_POST['name'] ?? null;
+    $priceMonth = $_POST['priceMonth'] ?? null;
+    $priceUnite = $_POST['priceUnite'] ?? null;
+
+    if (empty($id) || empty($name) || empty($priceMonth) || empty($priceUnite)) {
+        die("Des champs ne sont pas remplis !");
+    }
+
+    $stmt = $conn->prepare("UPDATE cours SET name = ?, priceMonth = ?, priceUnite = ? WHERE id=?; ");
+    if (!$stmt) {
+        die("Erreur de préparation de la requête : " . $conn->error);
+    }
+
+    $stmt->bind_param("siid", $name, $priceMonth,$priceUnite,$id);
+    if (!$stmt->execute()) {
+        die("Erreur lors de la modification des cours : " . $stmt->error);
+    }
+
+    $stmt->close();
+    //echo "Vacances ajoutées avec succès !";
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['modifierPlanning'])) {
+    $id         = $_POST['id'] ?? null;
+    $cours_id   = $_POST['cours_id'] ?? null;
+    $jour       = $_POST['jour'] ?? null;
+    error_log($_POST['jour']);
+    $debut      = $_POST['debut'] ?? null;
+    $fin        = $_POST['fin'] ?? null;
+    $prof       = $_POST['prof'] ?? null;
+    $adresse    = $_POST['adresse'] ?? null;
+
+    if (empty($adresse) || empty($cours_id) || empty($jour) || empty($debut)|| empty($fin) || empty($prof)) {
+        die("Des champs ne sont pas remplis !");
+    }
+
+    $stmt = $conn->prepare("UPDATE planning SET cours_id=?,jour=?,debut=?,fin=?,prof=?, adresse=? WHERE id=?; ");
+    if (!$stmt) {
+        die("Erreur de préparation de la requête : " . $conn->error);
+    }
+
+    $stmt->bind_param("isssssi",$cours_id,$jour,$debut,$fin,$prof,$adresse,$id);
+    if (!$stmt->execute()) {
+        die("Erreur lors de la modification des cours : " . $stmt->error);
     }
 
     $stmt->close();

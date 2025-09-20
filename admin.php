@@ -16,30 +16,90 @@
     <form method="post" formaction="db.php">
         
         <h2>Vacances personnalisées</h2>
-        <h3>supprimer des vacances</h3>
-        <table>
-            <tr><td>id</td><td>Start</td><td>End</td></tr>
-            <?php
-                afficherVac($conn);
-            ?>
-            <p>entrer un numéro de vacances</p><input type="text" name="vacSup"><input type="submit" name="supprimer_vacance" value="Supprimer">
-        </table>
+            <h3>supprimer des vacances</h3>
+            <table>
+                <tr><td>id</td><td>Start</td><td>End</td></tr>
+                <?php
+                    afficherVac($conn);
+                ?>
+                <p>entrer un numéro de vacances</p><input type="text" name="vacSup"><input type="submit" name="supprimer_vacance" value="Supprimer">
+            </table>
     </form>
     <h3>Ajouter des vacances</h3>
-    <form method="post" formaction="db.php">
-        <p>Les dates sont à entrer au format AAAA-MM-JJ</p>
-        <p>Début: <input type="text" name="dateDeb"> </br>Fin: <input type="text" name="dateFin"></p>
-        <input type="submit" name="ajouter_vacance" value="Ajouter vacance">
+        <form method="post" formaction="db.php">
+            <table>
+                    <tr><td colspan='2' ><p>Les dates sont à entrer au format AAAA-MM-JJ</p></td></tr>
+                    <tr><td><p>Début</td><td> <input type="text" name="dateDeb"> </td></tr>
+                    <tr><td></br>Fin:</td><td> <input type="text" name="dateFin"></p></td></tr>
+                    <tr><td colspan='2' ><input type="submit" name="ajouter_vacance" value="Ajouter vacance"></td></tr>
+            </table>
     </form>
-        <h2>factures</h2>
-        <h3>liste des factures</h3>
+
+
+    <h2>factures</h2>
+    <h3>liste des factures</h3>
+    <table>
+        <tr><td>Numéro de facture</td><td>Cours</td><td>Début</td><td>Nom</td><td>Prénom</td><td>Prix du premier mois</td><td>Récap premier mois</td><td></td></tr>
+        <?php 
+            afficherFactures($conn);
+        ?>
+    </table>
+    <form method="post" formaction="db.php">
+        
+        <h3>supprimer des factures</h3>
         <table>
-            <tr><td>Numéro de facture</td><td>Cours</td><td>Début</td><td>Nom</td><td>Prénom</td><td>Prix du premier mois</td><td>Récap premier mois</td><td></td></tr>
-            <?php 
-                afficherFactures($conn);
-            ?>
+            <tr><td><p>Numéro de la facture à supprimer</p></td><td><input type="text" name="facSup"></td></tr>
+            <tr><td><p>Nom de l'élève                  </p></td><td><input type="text" name="nomFacSup"></td></tr>
+            <tr><td></td><td><input type="submit" name="supprimer_facture" value="Supprimer"></td></tr>
         </table>
     </form>
+
+    <h2>Cours</h2>
+    <table>
+        <tr><td>id</td><td>Nom</td><td>Prix mensuel</td><td>Prix individuel</tr>
+        <?php afficherCours($conn);?>
+        <form method="post" formaction="db.php">
+            <p>Entrer un numéro de cours</p><input type="text" name="courSup"><input type="submit" name="supprimer_cours" value="Supprimer">
+        </form>
+        <form method="post" formaction="db.php">
+            <tr>
+                <td>00</td>
+                <td><input type="text"   name="name"></td>
+                <td><input type="text"   name="priceMonth"></td>
+                <td><input type="text"   name="priceUnite"></td>
+                <td><input type="submit" name="ajouter_cours" value="Ajouter"></td>
+            </tr>
+        </form>
+    </table>
+
+    <h2>Planning</h2>
+    <table>
+        <tr>
+            <td>id</td>
+            <td>cours_id</td>
+            <td>jour</td>
+            <td>debut</td>
+            <td>fin</td>
+            <td>prof</td>
+            <td>adresse</td>
+        </tr>
+        <?php afficherPlanning($conn);?>
+        <form method="post" formaction="db.php">
+            <p>Entrer un numéro de planning</p><input type="text" name="planSup"><input type="submit" name="supprimer_planning" value="Supprimer">
+        </form>
+        <form method="post" formaction="db.php">
+            <tr>
+                <td>00</td>
+                <td><input type="text"   name="cours_id"></td>
+                <td><input type="text"   name="jour"></td>
+                <td><input type="text"   name="debut"></td>
+                <td><input type="text"   name="fin"></td>
+                <td><input type="text"   name="prof"></td>
+                <td><input type="text"   name="adresse"></td>
+                <td><input type="submit" name="ajouter_planning" value="Ajouter"></td>
+            </tr>
+        </form>
+    </table>
 
 </body>
 </html>
@@ -77,8 +137,45 @@ function afficherFactures($conn){
                 echo "<td>" . $facture['totalPriceFirstMonth'] . "</td>";
                 echo "<td>" . $facture['recapPremMois'] . "</td>";
                 echo "<td>                    
-                        <a href='genPdf.php?idFac=" . urlencode($facture['idFac']) . "&action=voirFac' target='_blank'>
+                         <a href='genPdf.php?idFac=" . urlencode($facture['idFac']) . "&action=voirFac' target='_blank'>
                         <button type='button'>Voir</button>
+                    </a></td>";
+            echo "</form></tr>";
+            }
+}
+
+
+function afficherCours($conn){
+            $cours=getAllCours($conn);
+            foreach($cours as $cour){
+            echo "<form method='post' formaction='db.php'>";
+            echo " <tr>";
+                echo "<td>" . $cour['id'] .
+                         "<input type='hidden' name='id' value='".  $cour['id']."'</td>";
+                echo "<td><input type='text'   name='name' value='" . $cour['name'] . "'></td>";
+                echo "<td><input type='text'   name='priceMonth' value='" . $cour['priceMonth'] . "'></td>";
+                echo "<td><input type='text'   name='priceUnite' value='" . $cour['priceUnite'] . "'></td>";
+                echo "<td>                    
+                        <button type='submit' name='modifierCours'>Modifier</button>
+                    </a></td>";
+            echo "</form></tr>";
+            }
+}
+function afficherPlanning($conn){
+            $plannings=getAllPlannings($conn);
+            foreach($plannings as $planning){
+            echo "<form method='post' formaction='db.php'>";
+            echo " <tr>";
+                echo "<td>" . $planning['id'].
+                         "<input type='hidden' name='id' value='"      . $planning['id']."'</td>";
+                echo "<td><input type='text'   name='cours_id' value='". $planning['cours_id'] . "'></td>";
+                echo "<td><input type='text'   name='jour' value='"    . $planning['jour'] . "'></td>";
+                echo "<td><input type='text'   name='debut' value='"   . $planning['debut'] . "'></td>";
+                echo "<td><input type='text'   name='fin' value='"     . $planning['fin'] . "'></td>";
+                echo "<td><input type='text'   name='prof' value='"    . $planning['prof'] . "'></td>";
+                echo "<td><input type='text'   name='adresse' value='" . $planning['adresse'] . "'></td>";
+                echo "<td>                    
+                        <button type='submit' name='modifierPlanning'>Modifier</button>
                     </a></td>";
             echo "</form></tr>";
             }
