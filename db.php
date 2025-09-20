@@ -186,7 +186,7 @@ function getAllCours($conn) {
 }
 
 function getAllPlannings($conn) {
-    $sql = "SELECT * FROM planning ORDER BY id";
+    $sql = "SELECT * FROM planning ORDER BY cours_id";
     $result = $conn->query($sql);
     if (!$result) {
         die("Erreur SQL getAllCours : " . $conn->error);
@@ -444,6 +444,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['supprimer_cours'])) {
     if ($idCours !== null && is_numeric($idCours)) {
         $stmt = $conn->prepare("DELETE FROM cours WHERE id=?");
         $stmt->bind_param("i", $idCours);
+        $stmt->execute();
+    }
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['supprimer_planning'])) {
+    $idPlan = $_POST['planSup'] ?? null;
+    if ($idPlan !== null && is_numeric($idPlan)) {
+        $stmt = $conn->prepare("DELETE FROM planning WHERE id=?");
+        $stmt->bind_param("i", $idPlan);
         $stmt->execute();
     }
 }
