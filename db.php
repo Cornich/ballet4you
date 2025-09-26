@@ -45,6 +45,11 @@ $sqlTables = "
         dateFin DATE not null
     );
 
+    CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL UNIQUE,
+        mdp VARCHAR(150) NOT NULL
+    );
 
     create table if not exists facture(
         idFac varchar(16) primary key not null,
@@ -169,6 +174,23 @@ function initPlanning($conn) {
             }
         }
     }
+}
+function initAdmin($conn){
+    $mdp=password_hash('ALEX', PASSWORD_DEFAULT);
+    $username = 'admin';
+    
+    $stmt = $conn->prepare("INSERT INTO users (name, mdp) VALUES (?, ?)");
+    if (!$stmt) {
+        die("Erreur de préparation de la requête : " . $conn->error);
+    }
+
+    $stmt->bind_param("ss", $username, $mdp);
+    if (!$stmt->execute()) {
+        die("Erreur lors de la création de l'utilisateur : " . $stmt->error);
+    }
+
+    $stmt->close();
+    //echo "Vacances ajoutées avec succès !";
 }
 
 // Fonction pour récupérer tous les cours
@@ -397,6 +419,12 @@ function getFacture($conn,$idFac){
     return($result->fetch_assoc());
 
 }
+function getMdpAdmin($conn){
+    $stmt = $conn->prepare("SELECT mdp from users where id=1;  ");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return($result->fetch_assoc()['mdp']);
+}
 
 function getIdFac($conn){//renvoie le nombre de factures dans l'année en cours
     $stmt = $conn->prepare("SELECT COUNT(*)
@@ -441,27 +469,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['supprimer_planning'])
         $stmt->execute();
     }
 }
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['
+modifier_mdp'])) {
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_vacance'])) {
-    $dateDeb = $_POST['dateDeb'] ?? null;
-    $dateFin = $_POST['dateFin'] ?? null;
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['modifier_mdp'])) {
+    $P1 = $_POST['P1'] ?? null;
+    $P2 = $_POST['P2'] ?? null;
 
-    if (empty($dateDeb) || empty($dateFin)) {
-        die("Les dates de début et de fin sont obligatoires.");
+    if (empty($P1) || empty($P2)) {
+        die("Un mot de passe a été laissé vide");
     }
 
-    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateDeb) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFin)) {
-        die("Format de date invalide. Utilisez le format AAAA-MM-JJ.");
+    if (strcmp($P1,$P2)!=0) {
+        die("Les mot de passe ne sont pas égaux !!");
     }
 
-    $stmt = $conn->prepare("INSERT INTO vacances_perso (dateDeb, dateFin) VALUES (?, ?)");
+    $stmt = $conn->prepare("UPDATE users SET mdp= ? WHERE id=1;");
     if (!$stmt) {
         die("Erreur de préparation de la requête : " . $conn->error);
     }
 
-    $stmt->bind_param("ss", $dateDeb, $dateFin);
+    $stmt->bind_param("s", password_hash($P1, PASSWORD_DEFAULT));
     if (!$stmt->execute()) {
-        die("Erreur lors de l'ajout des vacances : " . $stmt->error);
+        die("Erreur lors de la modification du mot de passe: " . $stmt->error);
     }
 
     $stmt->close();

@@ -1,4 +1,5 @@
 <?php
+/////////////////POUR TEST UNIQUEMENT///////////////
 // DONNÉES STATIQUES (Calendrier, jours fériés, vacances...)
 /*$cours = [
     ["day"=>"1", "price"=>"10","name"=>"Cours du lundi"],
@@ -33,11 +34,6 @@ $yearMonth=date('Y-M');
 $decalage=0;
 
 $date = new DateTime();
- // 1. Jours fériés via feiertage-api.de
-//$feiertage_url = "https://feiertage-api.de/api/?jahr=$year&nur_land=$land_code";
-//$feiertage_response = file_get_contents($feiertage_url);
-//$feiertage = json_decode($feiertage_response, true);
-
 
 if(isset($_SESSION['vacances'])){
     $vacances = $_SESSION['vacances'];    
@@ -53,21 +49,6 @@ else{
     $_SESSION['feiertage']=getFeiertage($year,$land_code);
     $feiertage = $_SESSION['feiertage'];
 }
-
-
-/*function getVacances($year,$land_code){
-    for ($i = $year; $i <= $year+1; $i++) {
-    $feiertage_url = "https://feiertage-api.de/api/?jahr=$i&nur_land=$land_code";
-    $feiertage_response = file_get_contents($feiertage_url);
-    foreach(json_decode($feiertage_response, true) as $nom=>$info){
-        $feiertage[]=$info['datum'];    
-    }
-    error_log("appel API - Feirtage");
-    //echo("$i");
-    //$feiertage=array_merge($feiertage,json_decode($feiertage_response, true))  ;
-    }
-    return($feiertage);
-}*/
 
 #############################################
 #Normalement c'est pareil avec les vacances##

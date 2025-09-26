@@ -1,11 +1,15 @@
 <?php
+include 'db.php';          // Connexion à la base de données
+//include 'includes/header.php';  // Entête HTML
+require 'config.php';
 // Identifiants de connexion
 $valid_username = 'admin';
-$valid_password = 'ALEX'; // En production, utilisez un mot de passe haché
+$valid_password = getMdpAdmin($conn);// password_hash('ALEX', PASSWORD_DEFAULT); // En production, utilisez un mot de passe haché
+error_log($valid_password);
 
 // Vérification des identifiants
 if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
-    $_SERVER['PHP_AUTH_USER'] !== $valid_username || $_SERVER['PHP_AUTH_PW'] !== $valid_password) {
+        $_SERVER['PHP_AUTH_USER'] !== $valid_username ||!password_verify($_SERVER['PHP_AUTH_PW'], $valid_password)) {
     header('WWW-Authenticate: Basic realm="Zone protégée"');
     header('HTTP/1.0 401 Unauthorized');
     echo 'Accès refusé.';
@@ -14,11 +18,6 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
 ?>
 
 
-<?php
-    include 'db.php';          // Connexion à la base de données
-    //include 'includes/header.php';  // Entête HTML
-    require 'config.php';
-?>
 
 <link rel="stylesheet" href="admin.css" type="text/css">
 
@@ -116,6 +115,21 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
             </tr>
         </form>
     </table>
+
+    <h2>Modification du mot de passe</h2>
+    <form method="post" formaction="db.php">
+        <table>
+            <tr>
+                <td>Nouveau mot de passe</td>
+                <td><input type="password" name="P1"></td>
+            </tr>
+            <tr>
+                <td>Conformation du mot de passe</td>
+                <td><input type="password"name="P2"></td>
+            </tr>
+        </table>
+        <input type="submit" name="modifier_mdp" value="Changer le mot de passe">
+    </form>
 
 </body>
 </html>
