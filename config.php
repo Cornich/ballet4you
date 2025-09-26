@@ -1,14 +1,14 @@
 <?php
 // DONNÉES STATIQUES (Calendrier, jours fériés, vacances...)
-$cours = [
+/*$cours = [
     ["day"=>"1", "price"=>"10","name"=>"Cours du lundi"],
     ["day"=>"2", "price"=>"51","name"=>"Cours du mardi"],
     ["day"=>"2", "price"=>"12","name"=>"autre cours du mardi"],
     ["day"=>"3", "price"=>"80","name"=>"Cours du mercredi"],
     ["day"=>"4", "price"=>"55","name"=>"jeudi-ballet"]
-];
+];*/
 
-$feiertage = [
+/*$feiertage = [
     "2025-01-01", "2025-04-18", "2025-04-21", "2025-05-01", "2025-05-29",
     "2025-06-09", "2025-06-19", "2025-10-03", "2025-11-01", "2025-12-25",
     "2025-12-26", "2026-01-01", "2026-04-03", "2026-04-06", "2026-05-01",
@@ -24,7 +24,77 @@ $vacances = [
     ["start"=>"2025-07-14", "end"=>"2025-08-26", "year"=>"2025", "stateCode"=>"NW", "name"=>"sommerferien nordrhein-westfalen 2025"],
     ["start"=>"2025-10-13", "end"=>"2025-10-25", "year"=>"2025", "stateCode"=>"NW", "name"=>"herbstferien nordrhein-westfalen 2025"],
     ["start"=>"2025-12-22", "end"=>"2026-01-06", "year"=>"2025", "stateCode"=>"NW", "name"=>"weihnachtsferien nordrhein-westfalen 2025"]
-];
+];*/
+#INFOS POUR DIRE À L'API QUOI RÉCUPÉRER
+$land_code = 'NW'; // Nordrhein-Westfalen
+$year = date('Y');
+$month=date('M');
+$yearMonth=date('Y-M');
+$decalage=0;
+
+$date = new DateTime();
+ // 1. Jours fériés via feiertage-api.de
+//$feiertage_url = "https://feiertage-api.de/api/?jahr=$year&nur_land=$land_code";
+//$feiertage_response = file_get_contents($feiertage_url);
+//$feiertage = json_decode($feiertage_response, true);
+
+
+if(isset($_SESSION['feiertage'])){
+    $decalage = $_SESSION['feiertage'];    
+}
+else{
+    $_SESSION['feiertage']=getFeiertage($year,$land_code);
+    $decalage = $_SESSION['feiertage'];
+}
+
+if(isset($_SESSION['vacances'])){
+    $vacances = $_SESSION['feiertage'];    
+}
+else{
+    $_SESSION['vacances']=getVacances($year,$land_code);
+    $vacances = $_SESSION['vacances'];
+}
+
+/*function getVacances($year,$land_code){
+    for ($i = $year; $i <= $year+1; $i++) {
+    $feiertage_url = "https://feiertage-api.de/api/?jahr=$i&nur_land=$land_code";
+    $feiertage_response = file_get_contents($feiertage_url);
+    foreach(json_decode($feiertage_response, true) as $nom=>$info){
+        $feiertage[]=$info['datum'];    
+    }
+    error_log("appel API - Feirtage");
+    //echo("$i");
+    //$feiertage=array_merge($feiertage,json_decode($feiertage_response, true))  ;
+    }
+    return($feiertage);
+}*/
+
+#############################################
+#Normalement c'est pareil avec les vacances##
+#############################################
+
+// 2. Vacances scolaires via ferien-api.de
+function getVacances($land_code,$year){
+    $ferien_url = "https://ferien-api.de/api/v1/holidays/$land_code/$year";
+    $ferien_response = file_get_contents($ferien_url);
+    $vacances = json_decode($ferien_response, true);
+    $yearP1=$year+1;s
+    $ferien_url = "https://ferien-api.de/api/v1/holidays/$land_code/$yearP1";
+    $ferien_response = file_get_contents($ferien_url);
+    $vacances=array_merge($vacances,json_decode($ferien_response, true));
+    return($vacances);
+}
+function getFeiertage($year,$land_code){
+    for ($i = $year; $i <= $year+1; $i++) {
+    $ferien_url = "https://ferien-api.de/api/v1/holidays/$land_code/$i";
+    $feiertage_response = file_get_contents($ferien_url);
+    foreach(json_decode($feiertage_response, true) as $nom=>$info){
+        $feiertage[]=$info['datum'];    
+    }
+    error_log("appel API - Feirtage");
+    }
+}
+
 
 // FONCTIONS
 
