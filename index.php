@@ -1,4 +1,5 @@
 <?php
+error_log("NOUVELLE PAGE\n\n\n\n\n\n\n");
 include 'db.php';          // Connexion à la base de données
 
 session_start();

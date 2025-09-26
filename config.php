@@ -39,21 +39,21 @@ $date = new DateTime();
 //$feiertage = json_decode($feiertage_response, true);
 
 
-if(isset($_SESSION['feiertage'])){
-    $decalage = $_SESSION['feiertage'];    
-}
-else{
-    $_SESSION['feiertage']=getFeiertage($year,$land_code);
-    $decalage = $_SESSION['feiertage'];
-}
-
 if(isset($_SESSION['vacances'])){
-    $vacances = $_SESSION['feiertage'];    
+    $vacances = $_SESSION['vacances'];    
 }
 else{
     $_SESSION['vacances']=getVacances($year,$land_code);
     $vacances = $_SESSION['vacances'];
 }
+if(isset($_SESSION['feiertage'])){
+    $feiertage = $_SESSION['feiertage'];    
+}
+else{
+    $_SESSION['feiertage']=getFeiertage($year,$land_code);
+    $feiertage = $_SESSION['feiertage'];
+}
+
 
 /*function getVacances($year,$land_code){
     for ($i = $year; $i <= $year+1; $i++) {
@@ -72,27 +72,36 @@ else{
 #############################################
 #Normalement c'est pareil avec les vacances##
 #############################################
-
 // 2. Vacances scolaires via ferien-api.de
-function getVacances($land_code,$year){
+function getVacances($year,$land_code){
+    $yearP1=(int)$year+1;
+    $ferien_url = "https://ferien-api.de/api/v1/holidays/$land_code/$yearP1";
+    error_log($ferien_url);
+    $ferien_response = file_get_contents($ferien_url);
+    $vacances1 = json_decode($ferien_response, true);
+
     $ferien_url = "https://ferien-api.de/api/v1/holidays/$land_code/$year";
     $ferien_response = file_get_contents($ferien_url);
-    $vacances = json_decode($ferien_response, true);
-    $yearP1=$year+1;s
-    $ferien_url = "https://ferien-api.de/api/v1/holidays/$land_code/$yearP1";
-    $ferien_response = file_get_contents($ferien_url);
-    $vacances=array_merge($vacances,json_decode($ferien_response, true));
+    $vacances2=json_decode($ferien_response, true);
+    //error_log(print_r($vacances2));
+    //error_log(print_r($vacances1));
+    $vacances=array_merge($vacances1,$vacances2);
+    error_log("APPEL DE LA FONCTION getVacances\n");
     return($vacances);
 }
 function getFeiertage($year,$land_code){
     for ($i = $year; $i <= $year+1; $i++) {
-    $ferien_url = "https://ferien-api.de/api/v1/holidays/$land_code/$i";
-    $feiertage_response = file_get_contents($ferien_url);
-    foreach(json_decode($feiertage_response, true) as $nom=>$info){
-        $feiertage[]=$info['datum'];    
+        $feiertage_url = "https://feiertage-api.de/api/?jahr=$i&nur_land=$land_code";;
+        error_log($feiertage_url);
+        $feiertage_response = file_get_contents($feiertage_url);
+        $feirtageAnnee=json_decode($feiertage_response, true);
+        //error_log(print_r($feirtageAnnee));
+        foreach($feirtageAnnee as $info){
+            $feiertage[]=$info['datum'];    
+        }
+        error_log("appel API - Feiertage\n");
     }
-    error_log("appel API - Feirtage");
-    }
+    return($feiertage);
 }
 
 
@@ -172,13 +181,13 @@ function getDaysInMonth($date, $decalage, $duree, $vacances, $jferies, $conn): a
 
     $vacancesPerso=getVacancesPerso($conn);
     /*print_r($vacancesPerso);
-    echo($vacancesPerso[0]['dateDeb']);*/
+    //echo($vacancesPerso[0]['dateDeb']);*/
     //print_r($dates);
 
     foreach($vacancesPerso as $vacances){//application des vacances de la BDD
         if(strcmp($vacances["dateDeb"],$vacances["dateFin"])==0 and array_key_exists( $vacances["dateFin"],$dates) ){
             $dates[$vacances["dateFin"]]["inactive"]=1;
-            //secho("monovac: ".$vacances["dateDeb"]." ".$vacances["dateFin"]);
+            //echo("monovac: ".$vacances["dateDeb"]." ".$vacances["dateFin"]);
         }
         else{
             if(array_key_exists( $vacances["dateDeb"],$dates)) {
