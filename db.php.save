@@ -498,7 +498,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_planning'])) 
     $prof     = $_POST['prof'] ?? null;
     $adresse  = $_POST['adresse'] ?? null;
 
-    if ( empty($cours_id) ||empty($jour) ||empty($debut)||empty($fin) ||empty($prof)) {
+    if ( empty($cours_id) ||empty($jour) ||empty($debut)||empty($fin) ||empty($prof) ||empty($adresse)) {
         die("Des valeurs sont manquantes !");
     }
 
@@ -549,7 +549,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['modifierPlanning'])) 
     $prof       = $_POST['prof'] ?? null;
     $adresse    = $_POST['adresse'] ?? null;
 
-    if ( empty($cours_id) || empty($jour) || empty($debut)|| empty($fin) || empty($prof)) {
+    if (empty($adresse) || empty($cours_id) || empty($jour) || empty($debut)|| empty($fin) || empty($prof)) {
         die("Des champs ne sont pas remplis !");
     }
 
