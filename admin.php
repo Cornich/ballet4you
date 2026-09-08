@@ -17,13 +17,10 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
 }
 ?>
 
-
-
-<link rel="stylesheet" href="admin.css" type="text/css">
-
 <!DOCTYPE html>
 <header>
     <title>Admin</title>
+    <link rel="stylesheet" href="admin.css" type="text/css">
 </header>
 
 <body>  
@@ -51,24 +48,37 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
     </form>
 
 
-    <h2>factures</h2>
-    <h3>liste des factures</h3>
+    <h2>Factures</h2>
+    <h3>Liste des factures</h3>
+    <div style="margin-bottom: 10px;">
+        <form method="get" action="" style="display: inline-block; margin-right: 10px;">
+            <input type="hidden" name="sort" value="cours">
+            <button type="submit">Trier par type de cours</button>
+        </form>
+        <form method="get" action="" style="display: inline-block;">
+            <input type="hidden" name="sort" value="date">
+            <button type="submit">Trier par date (défaut)</button>
+        </form>
+    </div>
     <table>
-        <tr><td>Numéro de facture</td><td>Cours</td><td>Début</td><td>Nom</td><td>Prénom</td><td>Prix du premier mois</td><td>Récap premier mois</td><td></td></tr>
-        <?php 
-            afficherFactures($conn);
+        <tr>
+            <td>Numéro de facture</td>
+            <td>Cours</td>
+            <td>Début</td>
+            <td>Nom</td>
+            <td>Prénom</td>
+            <td>Mail</td>
+            <td>Prix du premier mois</td>
+            <td>Récap premier mois</td>
+            <td></td>
+        </tr>
+        <?php
+            $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'date';
+            afficherFactures($conn, $sortBy);
         ?>
     </table>
-    <form method="post" formaction="db.php">
-        
-        <h3>supprimer des factures</h3>
-        <table>
-            <tr><td><p>Numéro de la facture à supprimer</p></td><td><input type="text" name="facSup"></td></tr>
-            <tr><td><p>Nom de l'élève                  </p></td><td><input type="text" name="nomFacSup"></td></tr>
-            <tr><td></td><td><input type="submit" name="supprimer_facture" value="Supprimer"></td></tr>
-        </table>
-    </form>
-
+    
+    
     <h2>Cours</h2>
     <table>
         <tr><td>id</td><td>Nom</td><td>Prix mensuel</td><td>Prix individuel</tr>
@@ -87,11 +97,11 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
         </form>
     </table>
 
-    <h2>Planning</h2>
+    <h2>Créneaux</h2>
     <table>
         <tr>
-            <td>id</td>
-            <td>cours_id</td>
+            <td>id_créneau</td>
+            <td>id_cours</td>
             <td>jour</td>
             <td>debut</td>
             <td>fin</td>
@@ -100,7 +110,7 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
         </tr>
         <?php afficherPlanning($conn);?>
         <form method="post" formaction="db.php">
-            <p>Entrer un numéro de planning</p><input type="text" name="planSup"><input type="submit" name="supprimer_planning" value="Supprimer">
+            <p>Entrer un id de créneau</p><input type="text" name="planSup"><input type="submit" name="supprimer_planning" value="Supprimer">
         </form>
         <form method="post" formaction="db.php">
             <tr>
@@ -150,28 +160,30 @@ function afficherVac($conn){
 }
 function getColorFromId($id) {
     $colors=["rgb(255, 251, 139)","rgba(158, 255, 139, 1)","rgba(139, 238, 255, 1)","rgba(245, 139, 255, 1)","rgba(255, 166, 139, 1)","rgba(201, 255, 139, 1)","rgba(139, 218, 255, 1)","rgba(255, 218, 139, 1),
- rgba(192, 189, 107, 1)","rgba(105, 160, 94, 1)","rgba(87, 152, 163, 1)","rgba(164, 95, 170, 1)","rgba(143, 104, 92, 1)","rgba(107, 129, 81, 1)","rgba(86, 128, 148, 1)","rgba(158, 135, 86, 1),
-  rgba(151, 148, 44, 1)","rgba(65, 158, 47, 1)","rgba(38, 139, 156, 1)","rgba(153, 47, 163, 1)","rgba(158, 92, 72, 1)","rgba(119, 167, 65, 1)","rgba(60, 115, 141, 1)","rgba(158, 127, 59, 1)"];
-  return($colors[$id-1]);
+            rgba(192, 189, 107, 1)","rgba(105, 160, 94, 1)","rgba(87, 152, 163, 1)","rgba(164, 95, 170, 1)","rgba(143, 104, 92, 1)","rgba(107, 129, 81, 1)","rgba(86, 128, 148, 1)","rgba(158, 135, 86, 1),
+            rgba(151, 148, 44, 1)","rgba(65, 158, 47, 1)","rgba(38, 139, 156, 1)","rgba(153, 47, 163, 1)","rgba(158, 92, 72, 1)","rgba(119, 167, 65, 1)","rgba(60, 115, 141, 1)","rgba(158, 127, 59, 1)"];
+  return($colors[($id-1)%17]);
 }
 
-function afficherFactures($conn){
-            $factures=getFactures($conn);
-            foreach($factures as $facture){
-            echo " <tr style='background-color:" . getColorFromId($facture['idCours']) . "'>";
-                echo "<td>" . $facture['idFac'] . "</td>";
-                echo "<td>" . $facture['name'] . "</td>";
-                echo "<td>" . $facture['moisAnnee'] . "</td>";
-                echo "<td>" . $facture['nom'] . "</td>";
-                echo "<td>" . $facture['prenom'] . "</td>";
-                echo "<td>" . $facture['totalPriceFirstMonth'] . "</td>";
-                echo "<td>" . $facture['recapPremMois'] . "</td>";
-                echo "<td>                    
-                         <a href='genPdf.php?idFac=" . urlencode($facture['idFac']) . "&action=voirFac' target='_blank'>
-                        <button type='button'>Voir</button>
-                    </a></td>";
-            echo "</form></tr>";
-            }
+function afficherFactures($conn, $sortBy = 'date') {
+    $factures = getFactures($conn, $sortBy);
+    foreach ($factures as $facture) {
+        echo " <tr style='background-color:" . getColorFromId($facture['idCours']) . "'>";
+        echo "<td>" . $facture['idFac'] . "</td>";
+        echo "<td>" . $facture['name'] . "</td>";
+        echo "<td>" . $facture['moisAnnee'] . "</td>";
+        echo "<td>" . $facture['nom'] . "</td>";
+        echo "<td>" . $facture['prenom'] . "</td>";
+        echo "<td>" . $facture['email'] . "</td>";
+        echo "<td>" . $facture['totalPriceFirstMonth'] . "</td>";
+        echo "<td>" . $facture['recapPremMois'] . "</td>";
+        echo "<td>
+                <a href='genPdf.php?idFac=" . urlencode($facture['idFac']) . "&action=voirFac' target='_blank'>
+                    <button type='button'>Voir</button>
+                </a>
+              </td>";
+        echo "</tr>";
+    }
 }
 
 
